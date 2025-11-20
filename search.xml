@@ -4,12 +4,43 @@
   
     
     <entry>
+      <title>恶意代码分析实战Lab5</title>
+      <link href="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab5/"/>
+      <url>/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab5/</url>
+      
+        <content type="html"><![CDATA[<h3 id="Lab05-01"><a href="#Lab05-01" class="headerlink" title="Lab05-01"></a>Lab05-01</h3><p>本次实验主要聚焦于IDApro的基本操作，因此只记录最后的脚本操作范例</p><p>观察python脚本，可以得知脚本作用为解密0x50长度的字符串</p><pre class="line-numbers language-python" data-language="python"><code class="language-python">sea <span class="token operator">=</span> ScreenEA<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0x00</span><span class="token punctuation">,</span><span class="token number">0x50</span><span class="token punctuation">)</span><span class="token punctuation">:</span>        b <span class="token operator">=</span> Byte<span class="token punctuation">(</span>sea<span class="token operator">+</span>i<span class="token punctuation">)</span>        decoded_byte <span class="token operator">=</span> b <span class="token operator">^</span> <span class="token number">0x55</span>        PatchByte<span class="token punctuation">(</span>sea<span class="token operator">+</span>i<span class="token punctuation">,</span>decoded_byte<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>但由于python脚本环境配置有些许麻烦，笔者在此不使用python语言，而是使用IDApro原生脚本语言idc进行相同操作</p><pre class="line-numbers language-idc" data-language="idc"><code class="language-idc">#include &lt;idc.idc&gt;static main()&#123;auto ea&#x3D;ScreenEA(),b,i,decoded_byte;for(i&#x3D;0x0;i&lt;0x50;i++)&#123;b&#x3D;Byte(ea+i);decoded_byte&#x3D;b^0x55;PatchByte(ea+i,decoded_byte);&#125;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>脚本语言感觉与C语言很相似，没有太大的理解难度，下面我们执行脚本，可以见到原先的字符串成功解密</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab5/1763656869277.png" alt="解密前字符串"></p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab5/1763656899121.png" alt="解密后字符串"></p><p>脚本文件示例结束</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 软件安全 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 恶意代码分析实战 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>恶意代码分析实战Lab3</title>
       <link href="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/"/>
       <url>/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/</url>
       
-        <content type="html"><![CDATA[<h3 id="Lab03-02"><a href="#Lab03-02" class="headerlink" title="Lab03-02"></a>Lab03-02</h3><p>该例实验要求我们进行dll文件的运行，过往的学习中尚未见过要求单独运行dll的样例，特此记录。</p><p>首先准备实验所需工具（Regshot，Process Explorer，Process Monitor）</p><p>运行dll文件的指令很简单</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ rundll32 <span class="token operator">&lt;</span>DLL路径<span class="token operator">></span>,<span class="token operator">&lt;</span>函数名称<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>但记住，此时我们应该使用Regshot工具记录注册表键值，便于一会进行快照的比较</p><p>运行完毕命令以后，进行第二次的快照拍摄，同时进行快照比较，比较后的报告如下图所示：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763625273515.png" alt="1763625273515"></p><p>可以看出，该dll程序新添了服务项IPRIP，接下来我们便启动这个服务项，</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">net start IPRIP<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>可以看到，la03-02.dll是附着在svchost.exe这个宿主程序上运行的，并且通过PID查找可看到这个程序对系统进行的操作：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763625939434.png" alt="1763625939434"></p><p>同时使用wireshark抓包，分析网络流量，可以看到可疑的网址和http请求，该文件至此分析完毕：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763626430961.png" alt="1763626430961"></p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763626437351.png" alt="1763626437351"></p><h3 id="Lab03-03："><a href="#Lab03-03：" class="headerlink" title="Lab03-03："></a>Lab03-03：</h3><p>该程序是一个记录键盘输入的恶意代码，我们一步步对其进行分析</p><p>首先使用Process Exploer观测该程序运行的操作，发现他在创建了一个孤儿进程后自行退出，那么我们仔细观察这个被创建的svchost进程中的字符串信息：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763627864079.png" alt="1763627864079"></p><p>可以发现有大量的键盘字符，初步猜测其目的是记录键盘输入；接下来我们再根据Exploer中找到的PID，在Process Monitor中进行操作查询：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763627968227.png" alt="1763627968227"></p><p>发现该程序正在大量的对一个文件进行读写，打开此文件：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763628029435.png" alt="1763628029435"></p><p>看到记录着我在哪一程序上输入了哪些信息。</p><p>至此，该恶意代码功能分析完毕</p>]]></content>
+        <content type="html"><![CDATA[<h3 id="Lab03-02"><a href="#Lab03-02" class="headerlink" title="Lab03-02"></a>Lab03-02</h3><p>该例实验要求我们进行dll文件的运行，过往的学习中尚未见过要求单独运行dll的样例，特此记录。</p><p>首先准备实验所需工具（Regshot，Process Explorer，Process Monitor）</p><p>运行dll文件的指令很简单</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ rundll32 <span class="token operator">&lt;</span>DLL路径<span class="token operator">></span>,<span class="token operator">&lt;</span>函数名称<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>但记住，此时我们应该使用Regshot工具记录注册表键值，便于一会进行快照的比较</p><p>运行完毕命令以后，进行第二次的快照拍摄，同时进行快照比较，比较后的报告如下图所示：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763625273515.png" alt="Regshot 结果"></p><p>可以看出，该dll程序新添了服务项IPRIP，接下来我们便启动这个服务项，</p><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">net start IPRIP<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>可以看到，la03-02.dll是附着在svchost.exe这个宿主程序上运行的，并且通过PID查找可看到这个程序对系统进行的操作：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763625939434.png" alt="查询结果"></p><p>同时使用wireshark抓包，分析网络流量，可以看到可疑的网址和http请求，该文件至此分析完毕：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763626430961.png"></p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763626437351.png" alt="分析流量"></p><h3 id="Lab03-03："><a href="#Lab03-03：" class="headerlink" title="Lab03-03："></a>Lab03-03：</h3><p>该程序是一个记录键盘输入的恶意代码，我们一步步对其进行分析</p><p>首先使用Process Exploer观测该程序运行的操作，发现他在创建了一个孤儿进程后自行退出，那么我们仔细观察这个被创建的svchost进程中的字符串信息：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763627864079.png" alt="Strings"></p><p>可以发现有大量的键盘字符，初步猜测其目的是记录键盘输入；接下来我们再根据Exploer中找到的PID，在Process Monitor中进行操作查询：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763627968227.png" alt="Process EX &amp; Mon"></p><p>发现该程序正在大量的对一个文件进行读写，打开此文件：</p><p><img src="/2025/11/19/e-yi-dai-ma-fen-xi-shi-zhan-lab3/1763628029435.png" alt="结果"></p><p>看到记录着我在哪一程序上输入了哪些信息。</p><p>至此，该恶意代码功能分析完毕</p>]]></content>
       
+      
+      <categories>
+          
+          <category> 软件安全 </category>
+          
+      </categories>
       
       
         <tags>
