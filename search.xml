@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>恶意代码分析实战Lab6</title>
+      <link href="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/"/>
+      <url>/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/</url>
+      
+        <content type="html"><![CDATA[<p><strong>本次实验中的前两个程序在分析后发现是后两个程序的功能简化版，因此我们仅对后两个结构不同的实验程序进行分析</strong></p><h3 id="Lab06-03"><a href="#Lab06-03" class="headerlink" title="Lab06-03"></a>Lab06-03</h3><p>首先分析main函数中调用的几个函数</p><p>（1）sub_401271</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763715890008.png" alt="函数参数"></p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763715907251.png" alt="函数细节"></p><p>可以看到在调用前压入了字符串<strong>Success:xxx</strong>作为参数，在调用过程中又设置了缓冲区等，我们合理推断该函数为printf函数</p><p>（2）sub_401000</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763716257191.png" alt="函数细节"></p><p>发现函数在 <code>call InternetGetConnectedState</code>后，将结果与0进行比较，并且根据不同的返回结果print两个字符串，由此推断，该函数用于判断当前设备网络连接状态</p><p>（3）sub_401040</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763716553019.png" alt="构建http请求"></p><p>首先构造http请求，并尝试连接”<a href="http://www.practicalmalwareanalysis.com/">http://www.practicalmalwareanalysis.com</a>“</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763716674815.png" alt="判断前4字节是否相同"></p><p>其次从该网址中下载512字节数据并判断数组首位4字节是否为**&lt;!–**</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763718778393.png" alt="返回值"></p><p>如果是，便返回网页中的第五个字节。可以总结出该函数用于从远程网络连接中下载并判断数据</p><p>（4）sub_401130</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763718977347.png" alt="函数的switch结构"></p><p>通过图标结构可以得知该函数使用了switch结构，接下来我们依次分析各个case</p><p>‘a’:创建目录”C:\Temp”</p><p>‘b’:将lpExistingFileName中的文件资源copy到”C:\Temp\cc.exe”</p><p>‘c’:删除”C:\Temp\cc.exe”文件</p><p>‘d’:向注册表中写入键值对，将”C:\Temp\cc.exe”设置为自启动项，</p><p>‘e’:程序休眠100s</p><p>通过对这个switch结构的分析，我们可以了解这个函数的具体作用了——用于将远程获取的恶意程序拷贝到本地，并且设置为开机自启</p><p>至此我们的程序大体流程便分析完毕了。总结一下，这个程序的作用从连接远程，获取恶意程序，并且设置为开机自启，后续可能会进行远程连接等一系列控制操作</p><h3 id="Lab06-04"><a href="#Lab06-04" class="headerlink" title="Lab06-04"></a>Lab06-04</h3><p>该程序的大体功能与<strong>Lab06-03</strong>相似，不过多了一个循环结构，接下来我们对这两个程序间的不同进行具体分析</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763719679642.png" alt="main函数流程图"></p><p>由大体的流程图可以发现，在原先<strong>Lab06-03</strong>的流程走完以后，这里将会跳转回函数开头进行循环，下述为循环代码</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763719787968.png" alt="循环代码"></p><p>分析可得，此处将会循环1440次，又因为每次流程都会sleep60s，可以相乘得出此程序完整运行完需要一天</p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763719911055.png" alt="多出的参数"></p><p><img src="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab6/1763719916072.png" alt="Agent每次不同"></p><p>同时我们可以看到，原先的下载远程资源的函数多出了一个参数i，用于记录循环次数并且修改UserAgent的值，使得每次http请求从不同的Agent发出。</p><p>至此该次实验中的恶意程序已经分析完毕</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 软件安全 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 恶意代码分析实战 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>恶意代码分析实战Lab5</title>
       <link href="/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab5/"/>
       <url>/2025/11/21/e-yi-dai-ma-fen-xi-shi-zhan-lab5/</url>
@@ -48,19 +73,6 @@
             <tag> 恶意代码分析实战 </tag>
             
         </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Hello World</title>
-      <link href="/2025/11/18/hello-world/"/>
-      <url>/2025/11/18/hello-world/</url>
-      
-        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo new <span class="token string">"My New Post"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo generate<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo deploy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
-      
-      
       
     </entry>
     
