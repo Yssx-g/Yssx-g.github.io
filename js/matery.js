@@ -42,13 +42,18 @@ $(function () {
         $('.content').css('min-height', window.innerHeight - 165);
     };
 
+    let checkNightMode = function() {
+        '1' === localStorage.getItem('isDark') ? ($('body').addClass('DarkMode'), $('#nightMode').removeClass('fa-lightbulb-o').addClass('fa-moon-o')) : ($('#nightMode').removeClass('fa-moon-o').addClass('fa-lightbulb-o')) 
+      }
+    
     /**
      * 修复样式.
      */
     let fixStyles = function () {
-        fixPostCardWidth('navContainer');
+        fixPostCardWidth('navContainer', 'articles');
         fixPostCardWidth('artDetail', 'prenext-posts');
         fixFooterPosition();
+        checkNightMode();
     };
     fixStyles();
 
