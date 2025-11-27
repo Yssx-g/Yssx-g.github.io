@@ -465,7 +465,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    952
+                    1.1k
                 </div>
                 
 
@@ -532,6 +532,10 @@
 <p><img src="/2025/11/25/e-yi-dai-ma-fen-xi-shi-zhan-lab10/1764089957959.png"></p>
 <p>启动界面选择我们刚才配置的选项</p>
 <p><img src="/2025/11/25/e-yi-dai-ma-fen-xi-shi-zhan-lab10/1764090070389.png"></p>
+<p>然后观察windbg中的log，发现如下信息，证明已经连接成功了</p>
+<p><img src="/2025/11/25/e-yi-dai-ma-fen-xi-shi-zhan-lab10/1764220003845.png"></p>
+<p>由于恶意程序会在运行结束的时候自动卸载驱动，因此我们若想在windbg中看到该驱动，首先应该使用动态分析方法，运行程序到ControlService之前，通过IDA分析，可知断点应该为bp 00401080</p>
+<p>（鉴于windbg工具问题，本篇暂时停止更新，调试好了以后在进行更新）</p>
 
                 
             </div>

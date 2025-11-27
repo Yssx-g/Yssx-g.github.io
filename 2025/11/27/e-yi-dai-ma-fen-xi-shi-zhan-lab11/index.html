@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="软件保护分析和破解, Yssx&#39;s Blog">
+    <meta name="keywords" content="恶意代码分析实战Lab11, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>软件保护分析和破解 | Yssx&#39;s Blog</title>
+    <title>恶意代码分析实战Lab11 | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">软件保护分析和破解</h1>
+                    <h1 class="description center-align post-title">恶意代码分析实战Lab11</h1>
                 </div>
             </div>
         </div>
@@ -429,25 +429,12 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                    <div class="article-tag">
-                        
-                            <a href="/tags/%E8%BD%AF%E4%BB%B6%E4%BF%9D%E6%8A%A4%E5%88%86%E6%9E%90/">
-                                <span class="chip bg-color">软件保护分析</span>
-                            </a>
-                        
-                    </div>
+                          <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                          </div>
                     
                 </div>
                 <div class="col s5 right-align">
-                    
-                    <div class="post-cate">
-                        <i class="fas fa-bookmark fa-fw icon-category"></i>
-                        
-                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
-                                软件安全
-                            </a>
-                        
-                    </div>
                     
                 </div>
             </div>
@@ -456,7 +443,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-11-26
+                    2025-11-27
                 </div>
                 
 
@@ -465,14 +452,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.1k
+                    0
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    3 分
+                    1 分
                 </div>
                 
 
@@ -495,64 +482,7 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="软件保护破解"><a href="#软件保护破解" class="headerlink" title="软件保护破解"></a>软件保护破解</h3><p>crack.exe，该软件逻辑是，输入正确的用户名便返回Good Boy！否则返回Bad Boy！</p>
-<p>现在我们没有正确用户名，随意输几个值，看看软件返回结果</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764144692765.png" alt="程序运行演示"></p>
-<p>由于软件是判断输入内容的正确性，我们直接使用动态分析工具，分析他的跳转逻辑。我们可以查找其程序内所有Strings所在位置，并且观察哪些操作引用了该字符串，从而找到跳转部分</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764145260420.png"></p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764145203619.png"></p>
-<p>可以看到此处跳转逻辑使用的是jnz。那么我在不改变PE文件结构的情况下，可以颠倒其逻辑，改为je，应该就可以走到Good Boy！分支了</p>
-<p>经过测试，确实成功弹出Good Boy！</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764145562192.png"></p>
-<p>将修改后的文件保存，运行之，随便输入数据，确实成功破解了</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764145731663.png"></p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764145734810.png"></p>
-<h3 id="软件反动态调试分析"><a href="#软件反动态调试分析" class="headerlink" title="软件反动态调试分析"></a>软件反动态调试分析</h3><p>我们首先观察正常情况下运行的软件：首先会跳出CrackME的弹窗，点击以后会向用户显示hello，记下此时的软件操作</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764145873120.png"></p>
-<p>接下来我们尝试使用Ollydbg打开软件，看看他是否具有反动态调试功能，发现F9运行过后没有任何的窗口弹出，而是直接结束运行，因此判断该程序有反动态调试功能</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764146341607.png"></p>
-<p>遇到该功能，我们首先要想到，可能是通过判断父进程名字进行校验的。通常情况下，被我们直接运行的进程应该是由任务管理器explorer.exe打开的。但是通过调试器打开的软件其父进程为调试程序的名字。比如该例，软件父进程名字应该为ollydbg.exe</p>
-<p>于是软件便可以通过判断父进程名字是否为explorer.exe或者是否为最常见的几个调试器，从而确定当前是否为调试状态</p>
-<p><strong>注意，如果你是通过Ollydbg中的File-&gt;Open打开的，那么可能会判定其父进程为explorer，可以直接拖动避免该问题</strong></p>
-<p>又由于软件如果想要获取父进程名字，必不可少的函数便是GetCurrentProcessId了，因此我们在此下断点，进行调试</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764147274873.png"><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764147294052.png"></p>
-<p>接下来运行软件，发现第一个断点处操作如下。通过几个函数名，不难看出，此处是在检测程序运行的性能，可能是想通过调试器与主机中的性能差别来检测是否在调试器中运行</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764147483628.png" alt="1764147483628"></p>
-<p>第二个断点处的操作如下，首先通过NtQueryInformationProcess分析当前进程的信息获取父进程有关的信息，然后再后续使用GetModuleFileName获取对应父进程的名字</p>
-<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">// 对应的结构体（未公开，但已被逆向）</span>
-<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">_PROCESS_BASIC_INFORMATION</span> <span class="token punctuation">&#123;</span>
-    PVOID Reserved1<span class="token punctuation">;</span>
-    PVOID PebBaseAddress<span class="token punctuation">;</span>
-    PVOID Reserved2<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-    ULONG_PTR UniqueProcessId<span class="token punctuation">;</span>     <span class="token comment">// 当前进程PID</span>
-    ULONG_PTR InheritedFromUniqueProcessId<span class="token punctuation">;</span> <span class="token comment">// 父进程PID</span>
-<span class="token punctuation">&#125;</span> PROCESS_BASIC_INFORMATION<span class="token punctuation">;</span>
-
-<span class="token comment">// 函数调用</span>
-<span class="token function">NtQueryInformationProcess</span><span class="token punctuation">(</span>
-    hProcess<span class="token punctuation">,</span>                      <span class="token comment">// edi - 当前进程句柄</span>
-    ProcessBasicInformation<span class="token punctuation">,</span>       <span class="token comment">// 0x0 - 查询基本信息</span>
-    pInfoBuffer<span class="token punctuation">,</span>                   <span class="token comment">// ecx - 指向接收缓冲区的指针</span>
-    <span class="token keyword">sizeof</span><span class="token punctuation">(</span>PROCESS_BASIC_INFORMATION<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token comment">// 0x18=24 字节（结构体大小）</span>
-    pReturnLength                  <span class="token comment">// edx - 返回实际写入的字节数</span>
-<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764147714518.png" alt="1764147714518"></p>
-<p>获取名字以后将会对父进程名字进行比较，如果有不一样的部分直接退出循环。此时Sub eax,ecx不为0，因此后续不弹窗</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764148883684.png" alt="1764148883684"></p>
-<h3 id="基础手动脱壳"><a href="#基础手动脱壳" class="headerlink" title="基础手动脱壳"></a>基础手动脱壳</h3><p>首先我们将程序放到PEID中进行分析，发现程序带有UDP壳</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764175001728.png"></p>
-<p>接下来我们进入到Ollydbg中对该函数的真正起始点进行分析，发现此处开始时使用了pushad,那么结束该段壳返回到main函数时，也必定会使用popad恢复堆栈</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764175060629.png"></p>
-<p>我们在执行过pushad后，在数据窗口中跟随esp(恢复堆栈时必然会调用该寄存器)，此时在esp处设置一个硬件断点</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764175491214.png"></p>
-<p>然后执行，此时将自动运行到popad的后一条指令处。我们可以发现，正好应该是401000处的main函数</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764175548003.png"></p>
-<p>接下来我们对其脱壳，将入口点地址修改为1000</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764175693722.png"></p>
-<p>将脱完壳后的程序放到PEID中进行分析，果然已经可以去除壳了</p>
-<p><img src="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/1764175846117.png" alt="1764175846117"></p>
-
+                
                 
             </div>
             <hr/>
@@ -578,7 +508,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://Yssx-g.github.io/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/">http://Yssx-g.github.io/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/</a>
+                    <a href="http://Yssx-g.github.io/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/">http://Yssx-g.github.io/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -615,11 +545,7 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            
-                                <a href="/tags/%E8%BD%AF%E4%BB%B6%E4%BF%9D%E6%8A%A4%E5%88%86%E6%9E%90/">
-                                    <span class="chip bg-color">软件保护分析</span>
-                                </a>
-                            
+                            <span class="chip bg-color">无标签</span>
                         </div>
                     
                 </div>
@@ -924,9 +850,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/">
                     <div class="card-image">
@@ -944,9 +871,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-11-27
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-27
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-user fa-fw"></i>
@@ -955,6 +882,7 @@
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -965,24 +893,24 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/11/25/e-yi-dai-ma-fen-xi-shi-zhan-lab10/">
+                <a href="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="恶意代码分析实战Lab10">
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="软件保护分析和破解">
                         
-                        <span class="card-title">恶意代码分析实战Lab10</span>
+                        <span class="card-title">软件保护分析和破解</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            笔者阅读过程中的有趣实验摘录（实验资源下载：https://www.nostrach.com/malware.htm）
+                            
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-25
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-26
                             </span>
                         <span class="publish-author">
                             
@@ -999,8 +927,8 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98/">
-                        <span class="chip bg-color">恶意代码分析实战</span>
+                    <a href="/tags/%E8%BD%AF%E4%BB%B6%E4%BF%9D%E6%8A%A4%E5%88%86%E6%9E%90/">
+                        <span class="chip bg-color">软件保护分析</span>
                     </a>
                     
                 </div>
