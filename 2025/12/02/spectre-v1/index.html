@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="恶意代码分析实战Lab11, Yssx&#39;s Blog">
+    <meta name="keywords" content="Spectre-v1, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>恶意代码分析实战Lab11 | Yssx&#39;s Blog</title>
+    <title>Spectre-v1 | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">恶意代码分析实战Lab11</h1>
+                    <h1 class="description center-align post-title">Spectre-v1</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,12 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98/">
-                                <span class="chip bg-color">恶意代码分析实战</span>
+                            <a href="/tags/Spectre/">
+                                <span class="chip bg-color">Spectre</span>
+                            </a>
+                        
+                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                                <span class="chip bg-color">侧信道</span>
                             </a>
                         
                     </div>
@@ -443,8 +447,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
-                                软件安全
+                            <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                硬件攻击
                             </a>
                         
                     </div>
@@ -456,7 +460,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-11-27
+                    2025-12-02
                 </div>
                 
 
@@ -465,14 +469,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    2k
+                    1.2k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    6 分
+                    4 分
                 </div>
                 
 
@@ -495,96 +499,48 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="Lab11-01"><a href="#Lab11-01" class="headerlink" title="Lab11-01"></a>Lab11-01</h3><p>首先给出这次的几个问题</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764382637170.png"></p>
-<p>依然，我们使用strings先对文件进行初步的分析，可以得到以下结果：</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764382815900.png"></p>
-<p>很显然，该恶意程序进行了一系列的资源操作，那么我们接下来应该使用Resource Hacker对他的资源节进行分析</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764383018671.png"></p>
-<p>显而易见，该程序的资源节中藏着一个PE文件，我们应该将这个PE文件提取出来，并且使用PEID查看它的文件类型</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764383272959.png"></p>
-<p>可以看到该文件为一个DLL文件，我们再对他进行strings分析。发现有gina.dll和一系列的WLX前缀函数，可以推测程序功能为恶意gina拦截</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764383394424.png"></p>
-<p>接下来我们进行初步的动态分析，使用Process Monitor监视恶意程序操作</p>
-<p>观察发现，程序为注册表创建了键值对，并且向当前目录中写入了一份msgina32.dll，该dll即是我们之前提取出来的资源</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764383724947.png"></p>
-<p>因此，问题1：程序向电脑释放了一个伪装的ginaDLL；</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764384105773.png"></p>
-<p>问题2：程序通过注册表键值设置，来确保对应操作时首先调用伪造的msgina32.dll，从而实现长久化驻留</p>
-<p>接下来我们使用IDA工具对恶意代码进行分析，首先分析exe程序，大体观察一下，发现其功能就是我们刚才所分析的</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764385909817.png"></p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764385914598.png"></p>
-<p>因此，猜测该恶意程序主要功能集成在dll中，对dll进行分析，可以看到DLLMain中先动态的加载真实的MSGina.dll到全局变量 <code>hLibModule</code>中，便于后续的调用。</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764386232623.png"></p>
-<p>既然是Gina拦截程序，那么必然会实现Gina原有的所有功能，我们可以查看导出表验证这一点</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764386487735.png"></p>
-<p>接下来我们深入查看，分析该Dll文件在Gina操作的基础上插入了怎样的恶意代码，任选一个函数观察</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764386661904.png"></p>
-<p>发现其实现通过调用子函数，再跳转到返回值的对应处进行后续操作，那么我们猜测，该子函数的作用便是将Gina中的原本的对应函数实现地址赋值给eax,深入分析子函数</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764386938303.png"></p>
-<p>发现确实如此，通过传入的参数不同，选择调用不同的库函数，并且返回对应地址。但是这样的操作并没有恶意代码的执行啊？那么我们遍历一遍所有导出函数的具体实现，发现函数 <code>WlxLoggedOutSAS</code>的实现与别的函数都有所差别</p>
-<p>那么我们猜测WlxLoggedOutSAS便是恶意函数，深入分析</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764387295792.png"></p>
-<p>发现格式化字符串的调用，那么此处的子函数应该就是具体的打印函数,我们进入到子函数内部</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764387422197.png"></p>
-<p>可以看到，一些有用的信息被写入到了msutil32.sys这个伪装的系统文件中，并且我们知道，logout函数的触发条件，同时虚拟机已经被该程序污染过。因此重启虚拟机，观察该文件中写入了哪些信息</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764388157503.png" alt="img"></p>
-<p>发现文件中确实写入了我的账号密码信息，由于笔者未给虚拟机设置密码，所以PW选项中为空</p>
-<p>至此，该实验的所有问题我们均分析完毕！</p>
-<h3 id="Lab11-02"><a href="#Lab11-02" class="headerlink" title="Lab11-02"></a>Lab11-02</h3><p>依旧先以任务导向，我们首先来使用strings等基础工具解决前几个简单问题</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764407985479.png"></p>
-<p>通过strings，我们可以观察到如下信息，其中有典型的三个邮件客户端以及邮件开头报文，并且使用到了CopyFileA操作，以及在注册表中创建新的键值对。我们猜测，该恶意代码的驻留方式便是通过注册表中指定的伪装DLL文件来截获正常DLL库的调用</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764408198439.png"><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764408204445.png"></p>
-<p>接下来还有另一个文件Lab11-02.ini的strings分析，猜测这是一个加密以后的数据</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764408488064.png"></p>
-<p>使用PEID来分析DLL的导出函数，发现Installer，明白这是用来运行恶意代码的函数</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764408705437.png"></p>
-<p>我们使用Lab3所说的rundll32来进行dll的安装，并且使用ProMon同步监视其文件和注册表操作</p>
-<p>注意，由于我们使用的是rundll32.exe来安装代码，因此filter中的进程名应该为rundll32.exe</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764409670929.png"></p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764409625622.png"></p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764409630435.png"></p>
-<p>通过这三个监控片段，可以发现该恶意代码在system32目录下创建了一个spoolvxx32.dll，并且向注册表中写入了AppInit_DLLs的值，同时尝试在system32目录下查询到Lab11-02.ini</p>
-<p>所以我们可以得知Lab11-02.ini应该放在system32目录下，同时查看一下注册表中的对应值，笔者猜测指向开始时创建的spoolvxx32.dll</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764409943062.png"></p>
-<p>发现正如我们所想，同时，我们来验证一下这个dll文件是否就是我们的Lab11-02.dll，使用WinMD5进行MD5校验，发现两者MD5相同，说明为同一文件</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764410417342.png"></p>
-<p>接下来通过IDA对dll文件进行分析，来判断其RootKit技术</p>
-<p>我们跳过Lab11-02.ini的判断过程，直接观察恶意代码部分</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764410749211.png"></p>
-<p>通过上下文可知，sub_100010B3压入ini文件的内容，我们猜测其为解密函数，在ollydbg中动态调试，观察解密结果</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764412098047.png"></p>
-<p>可以看到解密出的字符串是一个邮箱地址，可以推测该程序功能是在你发邮件的时候拷贝一份发往该邮箱</p>
-<p>继续IDA分析，分析返回前调用的最后一个函数sub_100014B6</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764412554015.png"></p>
-<p>首先要判断获取到的模块名是否为这三个之一，如果均不是，直接退出。否则进入下一个子函数sub_100013BD的调用</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764421388836.png"></p>
-<p>记住压栈参数为CurrentProcessID，继续深入，首先加载kernel32库中的OpenThread函数</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764421493665.png"></p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764421499473.png"></p>
-<p>接下来CreateToolhelp32Snapshot为当前所有线程拍一张快照</p>
-<p>遍历所有线程，将当前进程中的所有不是spoolvxx的线程全部挂起，然后返回</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764421569029.png"></p>
-<p>那么我们继续分析顶层中的sub_100012A3函数，它的参数如图所示</p>
-<p>作用是加载wsock32.dll中的send函数，并且使用我们两个指针参数调用子函数sub_10001203,我们继续深入</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764422016699.png"></p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764422118232.png"></p>
-<p>深入以后发现，这个函数才是我们最重要的钩子实现部分，现在笔者将针对代码细细分析</p>
-<p>首先是前几行代码，<code>v6=a2-(lpAddress+5)</code>，实际上是在计算a2也就是我们的恶意代码与钩子跳转处的相对位移（因为jmp xxx本身占据5字节，所以+5）</p>
-<p>接下来是为原始send函数的前5字节附上0x40也就是PAGE_EXECUTE_READWRITE,可读写执行权限，便于后续将jmp指令写入</p>
-<p>然后是创建一个指针指向我们的send函数头，准备开始构造jmp指令</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764422465700.png"></p>
-<p>由于v5是（char*）类型，所以v5[0]-v5[3]中存放的为send函数地址，在第5字节处保存我们覆盖的长度，再将send函数真正的前5字节复制到分配区域准备运行</p>
-<p>后面的操作与上面类似，同样是计算跳转的偏移地址，并且写入jmp指令（0E9）</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764424174649.png"></p>
-<p>再往后的操作就是恢复原本权限，同时让我们的第三个参数指针指向send函数原头部加跳转链的地址，并使返回值为也指向该内存空间</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764424339165.png"></p>
-<p>那么至此，我们的hook构造链便分析完毕了，最后让我们仔细分析一下真正的恶意代码部分</p>
-<p>这一部分就很简单了，如果发送的邮件中含有关键词RCPT TO:的话，就将邮件拦截下来，将目的地更换为攻击者邮箱，先进行一次send，最后再次进行一次send到真正收件人邮箱</p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764424868947.png"></p>
-<p><img src="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/1764424922085.png"></p>
-<p>那么至此，我们的代码分析过程彻底结束</p>
-<h3 id="Lab11-03"><a href="#Lab11-03" class="headerlink" title="Lab11-03"></a>Lab11-03</h3>
+                <h3 id="Spectre-V1简介"><a href="#Spectre-V1简介" class="headerlink" title="Spectre-V1简介"></a>Spectre-V1简介</h3><p>Spectre-V1是Spectre(幽灵)漏洞攻击的一个变种，是一种针对处理器硬件分支预测特性的攻击方法：它主要利用分支预测对硬件cache有着不回退的影响这一点来进行常规的侧信道攻击</p>
+<p><img src="/2025/12/02/spectre-v1/1764689207794.png" alt="常见流水线CPU结构"></p>
+<p>首先我们要明白，分支预测为何会对数据cache产生影响。在流水线CPU中，为了加速CPU执行速度，常常会进行分支预测。如果一个条件判断多次正确，那么CPU将会在下一次读取相同指令时先默认该条件判断为真，对指令进行译码，读取数据等操作。而真正的数据计算则是会在EX阶段进行，如果条件错误，CPU将在此时flush后续指令，避免错误指令执行。但我们的数据读取是在EX阶段所执行的，而又众所周知，读取数据将会在cache中留下痕迹。此时虽然我们的错误指令并未真正执行，但cache中其实已经写入了我们想要得到的数据</p>
+<p><img src="/2025/12/02/spectre-v1/1764689432405.png" alt="常见攻击片段"></p>
+<p>正如上图所示，当我们多次给出正确的X值时，CPU将会默认该条件成立。那么此时，我们使用攻击地址和array1数组的相对偏移作为index，则攻击地址的内容将会被逐字节逐次写入到cache中。</p>
+<p>比如此时array1[x]&#x3D;’H’,ASCII码值为72,那么array2[72*4096]将会被加载到cache中去，后续我们再读取array2[72*4096]中的数据就会远远快于其他数据，我们便可以通过这个时间差异进行侧信道攻击</p>
+<h3 id="系统检测"><a href="#系统检测" class="headerlink" title="系统检测"></a>系统检测</h3><p>使用开源工具，来检查Ubuntun虚拟机是否支持Spectre-V1变体的攻击</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/speed47/spectre-meltdown-checker.git
+<span class="token builtin class-name">cd</span>  spectre-meltdown-checker
+<span class="token function">sudo</span> ./spectre-meltdown-checker.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2025/12/02/spectre-v1/1764691329626.png"></p>
+<p>可以发现有很多缓解措施都是没有使用的，那么我们的V1攻击应该可以执行</p>
+<p>接下来我们给出一个Spectre-V1攻击的示例仓库源码</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/Eugnis/spectre-attack.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>笔者将逐步解析该段攻击代码</p>
+<h3 id="Victim"><a href="#Victim" class="headerlink" title="Victim"></a>Victim</h3><p>Victim段的代码诸如上述所言，首先定义了攻击所需的array1和array2数组，并且为了防止两个数组中的数据落在同一cache缓存行中（如果array1中有部分数据与array2缓存行重叠，那么在使用array1攻击的同时，会将我们所不愿意加载的array2的cache line加载进cache，使得每次攻击无法精准判断对应的字符），在数组中间定义了unused数组用于占位；</p>
+<p>其中unused数组大小和array2数组中的512依据设备具体的cache line大小确定，为一单位cache line 大小</p>
+<p>接下来使用经典的漏洞结构，便于我们后续向cache中注入指定数据</p>
+<p><img src="/2025/12/02/spectre-v1/1764691666289.png"></p>
+<h3 id="Initiate"><a href="#Initiate" class="headerlink" title="Initiate"></a>Initiate</h3><p>为了便于学习具体攻击方法，我们首先浏览一下main函数中初始化的变量</p>
+<p>可以发现 默认攻击模式下 <code>malicious_x</code>正是攻击地址与array1的相对偏移值，而指定参数模式下，则是可以选定具体的地址进行攻击</p>
+<p>记住 <code>malicious_x</code>是相对偏移，<code>len</code>则是攻击的长度</p>
+<p><img src="/2025/12/02/spectre-v1/1764692286616.png" alt="1764692286616"></p>
+<h3 id="Attack"><a href="#Attack" class="headerlink" title="Attack"></a>Attack</h3><p>攻击代码部分首先定义了 <code>CACHE_HIT_THRESHOLD</code>用于判断数据是否在cache中</p>
+<p>其次对我们存储cache命中次数的results数组进行初始化。接下来进行999次攻击尝试，攻击具体细节如下：</p>
+<p>首先将cache中所有array2的缓存行清除，根据尝试次数来决定此次的training_x索引。重要的是接下来的循环：清空array1缓存，通过数学变换而非条件判断完成任务：每五轮正确预测后追加一轮攻击</p>
+<p><img src="/2025/12/02/spectre-v1/1764692496166.png"></p>
+<p>后续，遍历array2的所有cache line，并使用混淆方式乱序读取，防止编译器自行优化（167与255互质，可以遍历），如果时间小于我们设置的阈值，并且不处于正常情况下的array2前16个cache line，我们就将当前cache line的命中次数加1</p>
+<p><img src="/2025/12/02/spectre-v1/1764693167576.png"></p>
+<p>后续我们选出命中次数最多的前两行，并且可以设置剪枝条件，防止运行时间过久</p>
+<p><img src="/2025/12/02/spectre-v1/1764693373690.png"></p>
+<h3 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h3><p>我们得到了最大行和次大行，根据此时数值来确定字符</p>
+<p>while循环用于攻击指定长度的片段，通过攻击函数得到的value是行数，也就是字符的ASCII码值，score是字符对应行的命中次数。最终将窃取数据存在decode中</p>
+<p><img src="/2025/12/02/spectre-v1/1764693531868.png"></p>
+<h3 id="Show"><a href="#Show" class="headerlink" title="Show"></a>Show</h3><p>在此运行演示代码，Ubuntun虚拟机，成功获取目标字符串</p>
+<p><img src="/2025/12/02/spectre-v1/1764693728158.png"></p>
+<p>Windows主机，获取目标字符串的大量信息</p>
+<p><img src="/2025/12/02/spectre-v1/1764693808355.png" alt="1764693808355"></p>
+<p>由此可见该攻击方式的普适性</p>
+
                 
             </div>
             <hr/>
@@ -610,7 +566,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://Yssx-g.github.io/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/">http://Yssx-g.github.io/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/</a>
+                    <a href="http://Yssx-g.github.io/2025/12/02/spectre-v1/">http://Yssx-g.github.io/2025/12/02/spectre-v1/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -648,8 +604,12 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98/">
-                                    <span class="chip bg-color">恶意代码分析实战</span>
+                                <a href="/tags/Spectre/">
+                                    <span class="chip bg-color">Spectre</span>
+                                </a>
+                            
+                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                                    <span class="chip bg-color">侧信道</span>
                                 </a>
                             
                         </div>
@@ -956,9 +916,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2025/12/02/spectre-v1/">
                     <div class="card-image">
@@ -976,9 +937,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-12-02
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-12-02
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -991,6 +952,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1013,24 +975,24 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/11/26/ruan-jian-bao-hu-fen-xi-he-po-jie/">
+                <a href="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="软件保护分析和破解">
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="恶意代码分析实战Lab11">
                         
-                        <span class="card-title">软件保护分析和破解</span>
+                        <span class="card-title">恶意代码分析实战Lab11</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            笔者阅读过程中的有趣实验摘录（实验资源下载：https://www.nostrach.com/malware.htm）
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-26
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-27
                             </span>
                         <span class="publish-author">
                             
@@ -1047,8 +1009,8 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E8%BD%AF%E4%BB%B6%E4%BF%9D%E6%8A%A4%E5%88%86%E6%9E%90/">
-                        <span class="chip bg-color">软件保护分析</span>
+                    <a href="/tags/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98/">
+                        <span class="chip bg-color">恶意代码分析实战</span>
                     </a>
                     
                 </div>
