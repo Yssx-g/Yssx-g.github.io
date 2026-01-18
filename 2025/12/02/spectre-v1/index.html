@@ -523,7 +523,7 @@
 <h3 id="Initiate"><a href="#Initiate" class="headerlink" title="Initiate"></a>Initiate</h3><p>为了便于学习具体攻击方法，我们首先浏览一下main函数中初始化的变量</p>
 <p>可以发现 默认攻击模式下 <code>malicious_x</code>正是攻击地址与array1的相对偏移值，而指定参数模式下，则是可以选定具体的地址进行攻击</p>
 <p>记住 <code>malicious_x</code>是相对偏移，<code>len</code>则是攻击的长度</p>
-<p><img src="/2025/12/02/spectre-v1/1764692286616.png" alt="1764692286616"></p>
+<p><img src="/2025/12/02/spectre-v1/1764692286616.png"></p>
 <h3 id="Attack"><a href="#Attack" class="headerlink" title="Attack"></a>Attack</h3><p>攻击代码部分首先定义了 <code>CACHE_HIT_THRESHOLD</code>用于判断数据是否在cache中</p>
 <p>其次对我们存储cache命中次数的results数组进行初始化。接下来进行999次攻击尝试，攻击具体细节如下：</p>
 <p>首先将cache中所有array2的缓存行清除，根据尝试次数来决定此次的training_x索引。重要的是接下来的循环：清空array1缓存，通过数学变换而非条件判断完成任务：每五轮正确预测后追加一轮攻击</p>
@@ -916,30 +916,29 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2025/12/02/spectre-v1/">
+                <a href="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="Spectre-v1">
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="分支预测执行漏洞原理综述">
                         
-                        <span class="card-title">Spectre-v1</span>
+                        <span class="card-title">分支预测执行漏洞原理综述</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            总结常见分支预测执行漏洞以及对应原理
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-12-02
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-01-18
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -952,7 +951,6 @@
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
