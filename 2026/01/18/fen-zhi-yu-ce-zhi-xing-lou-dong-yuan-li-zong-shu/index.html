@@ -998,7 +998,7 @@ set_up_trampoline:
                                  ;     注意：只有真实commit&#x2F;execution才会“落地修改”！
     ret                          ; [3] ret从栈（已经被mov改写）弹出目标 -&gt; 跳转到%r11
                                  ;     commit时才pop，安全跳转
-                                 ;     投机期则ret永远预测跳回本函数的mov这一行（由RSB控制）      
+                                 ;     投机期则ret永远预测跳回本函数的mov这一行（由RSB控制）    
 
 trap_loop:                       ; [4] trap loop是保险兜底，不会被常规流程执行
     pause   
@@ -1124,7 +1124,7 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
 <li>多 enclave 共享核心的场景，避免 enclave 间状态残留泄露。</li>
 </ul>
 <h4 id="受控投机执行"><a href="#受控投机执行" class="headerlink" title="受控投机执行"></a>受控投机执行</h4><p>通过两种执行模式，在 “安全” 和 “性能” 间平衡，确保投机执行不额外泄露秘密（符合 RMI 属性）。</p>
-<h5 id="Safe-Mode（默认模式：无代码分析，普适安全）"><a href="#Safe-Mode（默认模式：无代码分析，普适安全）" class="headerlink" title="Safe Mode（默认模式：无代码分析，普适安全）"></a>Safe Mode（默认模式：无代码分析，普适安全）</h5><h6 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h6><p>攻击者利用投机执行访问共享内存，修改共享微架构状态（如 LLC 缓存）泄露秘密。Safe Mode 禁止 “投机访问共享内存”，仅允许非投机状态（指令到达 ROB 头部）的共享内存访问，从根源阻断投机泄露。</p>
+<h5 id="1-Safe-Mode（默认模式：无代码分析，普适安全）"><a href="#1-Safe-Mode（默认模式：无代码分析，普适安全）" class="headerlink" title="1.Safe Mode（默认模式：无代码分析，普适安全）"></a>1.Safe Mode（默认模式：无代码分析，普适安全）</h5><h6 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h6><p>攻击者利用投机执行访问共享内存，修改共享微架构状态（如 LLC 缓存）泄露秘密。Safe Mode 禁止 “投机访问共享内存”，仅允许非投机状态（指令到达 ROB 头部）的共享内存访问，从根源阻断投机泄露。</p>
 <h6 id="实现细节-3"><a href="#实现细节-3" class="headerlink" title="实现细节"></a>实现细节</h6><ul>
 <li><strong>判断逻辑</strong> ：内存执行流水线早期校验 —— 若访问共享内存且处于投机状态（未到达 ROB 头部），则判定为 “不安全”；</li>
 <li><strong>处理流程</strong> ：<ul>
