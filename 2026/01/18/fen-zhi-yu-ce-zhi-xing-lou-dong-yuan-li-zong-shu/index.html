@@ -431,12 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
-                                <span class="chip bg-color">侧信道</span>
-                            </a>
-                        
-                            <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
-                                <span class="chip bg-color">分支预测</span>
+                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                <span class="chip bg-color">侧信道，分支预测</span>
                             </a>
                         
                     </div>
@@ -469,14 +465,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    8.1k
+                    9k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    32 分
+                    35 分
                 </div>
                 
 
@@ -978,8 +974,10 @@ func <span class="token operator">=</span> <span class="token punctuation">(</sp
 
 <p>同理，cond为false时，为避免投机执行，使用掩码将指针置为NULL，从而无法跳转到real_impl</p>
 <hr>
-<h3 id="Retpoline"><a href="#Retpoline" class="headerlink" title="Retpoline"></a>Retpoline</h3><p>采用巧妙的“返回跳板”来 <strong>替代所有间接jmp&#x2F;call</strong> ，防止分支目标预测被攻击者控制。</p>
-<p>首先我们应该了解RSB这个结构，它是用于投机执行间接分支跳转的重要组件：每当call的时候，RSB和物理栈同步压入返回地址，遇到ret时，先投机执行RSB栈顶的返回；等到真实ret地址从内存中取出时与其比对，若投机错误回退，当物理栈的ret真正commit时，RSB栈才会同步pop出栈顶地址，确保RSB与物理栈的对应（投机过程中RSB不会pop元素）</p>
+<h3 id="Retpoline（隔离）"><a href="#Retpoline（隔离）" class="headerlink" title="Retpoline（隔离）"></a>Retpoline（隔离）</h3><p>（在软件层面上无法阻止投机执行，那么不妨考虑以毒攻毒。既然Spectre变体2攻击能够做到分支目标注入进而控制跳转目标的地址，那防御手段也可以利用同样的做法控制跳转目标的地址，以阻断恶意代码的攻击路径。Retpoline设计者希望使用ret间接跳转并借助RSB预测器来控制投机执行，从而阻断Spectre变体2的攻击路径。上述设计被称为Indirect branch&#x2F;call thunk。）</p>
+<p>采用巧妙的“返回跳板”来<strong>替代所有间接jmp&#x2F;call</strong> ，防止分支目标预测被攻击者控制。</p>
+<p>每次CPU在快执行间接跳转的时候，比如jmp [xxx], call, 会去询问indirect branch predictor，然后投机选择一个最有可能执行的路径。retpoline就是要绕过这个indirect branch predictor，使得CPU没有办法利用其它人故意训练出来的分支路径。</p>
+<p>ret依赖于Return Stack Buffer(RSB)。首先我们应该了解RSB这个结构，它是用于投机执行间接分支跳转的重要组件：每当call的时候，RSB和物理栈同步压入返回地址，遇到ret时，先投机执行RSB栈顶的返回；等到真实ret地址从内存中取出时与其比对，若投机错误回退，当物理栈的ret真正commit时，RSB栈才会同步pop出栈顶地址，确保RSB与物理栈的对应（投机过程中RSB不会pop元素）</p>
 <p>替代示例：</p>
 <pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">; ------ 原始间接跳转（易受投机攻击）------
 ; mov %r11, %rax
@@ -1004,6 +1002,45 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
     pause   
     jmp    trap_loop  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<p>Return stack预测器在RSB被恶意代码故意耗尽导致发生return stack下溢的情况下是可能会被攻击的。既然如此，Retpoline又额外设计了Return stack refill修复方案。该方案的具体做法就是在可能成为攻击路径的关键位置上对RSB进行填充，确保不会因发生return stack下溢而给后续执行的victim代码留下潜在的被攻击的风险。</p>
+<p>充填RSB：</p>
+<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">mov $8, %rax;   &#x2F;&#x2F; 循环8次，每次充填2项
+.align 16
+3:
+  call 4f    &#x2F;&#x2F; 充填一项
+3p:
+  pause    &#x2F;&#x2F; 当投机执行会被引入一个无限pause循环
+  call 3p
+.align 16
+4:
+  call 5f    &#x2F;&#x2F; 再充填一项
+4p:
+  pause
+  call 4p
+.align 16
+ 5:
+  dec %rax
+  jnz 3b
+  add $(16*8), %rsp  &#x2F;&#x2F; 调整栈顶指针<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>因为重填的RSB项可能会被攻击者“消耗”掉一部分，并有可能被恶意利用，为了不能给攻击者留下任何把柄，RSB中项的目标地址必须要谨慎构造。为了确保万无一失，这里使用了与indirect thunk同样的技巧，将投机执行引入一个无限循环的循环中。</p>
+<hr>
+<h3 id="IBT"><a href="#IBT" class="headerlink" title="IBT"></a>IBT</h3><p>间接分支追踪（Indirect Branch Tracking，IBT） 是 Intel Control-flow Enforcement Technology (CET) 的核心组件之一，旨在加强程序的控制流保护，防止恶意代码通过控制流劫持技术（如 ROP（Return-Oriented Programming） 或 JOP（Jump-Oriented Programming））来绕过安全机制，执行恶意行为。</p>
+<p>间接分支追踪（IBT）通过硬件保护措施，确保所有间接分支的目标地址是合法的，从而防止攻击者通过修改这些目标地址来劫持程序执行。</p>
+<p>具体来说，IBT 通过以下几种方式来增强程序的安全性：</p>
+<p>1.合法目标地址限制：</p>
+<ul>
+<li>IBT 强制所有间接跳转必须跳转到合法的目标地址。合法目标通常是预定义的，例如位于程序代码段或其他指定的安全区域。</li>
+<li>如果间接跳转的目标地址不是合法的，硬件会触发异常，从而阻止程序继续执行恶意代码。</li>
+</ul>
+<p>2.间接分支目标的验证：</p>
+<ul>
+<li>在执行间接分支时，硬件会检查该跳转的目标地址是否符合预设的规则。具体来说，间接跳转的目标必须位于一个“可信的”代码区域，否则会触发异常。</li>
+</ul>
+<p>3.跳转目标表：</p>
+<ul>
+<li>IBT 依赖于跳转目标表（例如，函数指针、虚拟表指针等）来验证目标地址是否合法。跳转表会被标记为“可追踪”，并且只有合法的目标可以存在于这个表中。</li>
+</ul>
 <hr>
 <h3 id="SpecLFB"><a href="#SpecLFB" class="headerlink" title="SpecLFB"></a>SpecLFB</h3><p>核心逻辑：仅限制 “导致缓存缺失的不安全投机加载（MUSL）”，通过 LFB 安全检查阻止其修改缓存，验证安全后再刷新缓存。</p>
 <ul>
@@ -1248,12 +1285,8 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
-                                    <span class="chip bg-color">侧信道</span>
-                                </a>
-                            
-                                <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
-                                    <span class="chip bg-color">分支预测</span>
+                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                    <span class="chip bg-color">侧信道，分支预测</span>
                                 </a>
                             
                         </div>
