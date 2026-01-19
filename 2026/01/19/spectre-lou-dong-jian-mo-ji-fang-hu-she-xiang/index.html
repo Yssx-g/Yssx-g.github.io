@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="contact, Yssx&#39;s Blog">
+    <meta name="keywords" content="spectre攻击建模及防护设想, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>contact | Yssx&#39;s Blog</title>
+    <title>spectre攻击建模及防护设想 | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -306,76 +306,400 @@
 
 </header>
 
-    <div class="bg-cover pd-header about-cover">
-    <div class="container">
-    <div class="row">
-    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
-        <div class="brand">
-            <div class="title center-align">
-                
-                Upper
-                
-            </div>
+    
 
-            <div class="description center-align">
-                
-                <span id="subtitle"></span>
-                <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
-                <script>
-                    var typed = new Typed("#subtitle", {
-                        strings: ['人生如逆旅，我亦是行人','萤烛末光，增辉日月'],
-                        startDelay: 300,
-                        typeSpeed: 50,
-                        loop: true,
-                        backSpeed: 20,
-                        showCursor: true
-                    });
-                </script>
-                
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">spectre攻击建模及防护设想</h1>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 
-<script>
-    // 每次进入页面时随机选择一张 banner 图
-    // 1. 获取基础 URL 前缀
-    var bannerUrlPrefix = "/medias/banner/";
+
+
+<main class="post-container content">
+
     
-    // 2. 初始化变量
-    var totalImages = 7; // 图片总数 (假设有 0.jpg 到 6.jpg)
-    var currentIndex = Math.floor(Math.random() * totalImages); // 随机生成索引
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
 
-    // 3. 设置背景
-    $('.bg-cover').css('background-image', 'url(' + bannerUrlPrefix + currentIndex + '.jpg)');
-</script>
+    #articleContent :focus {
+        outline: none;
+    }
 
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
 
-    </div>
-</div>
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
 
-<main class="content">
-    <div id="contact" class="container chip-container">
-        <div class="card">
-            <div class="card-content">
-                <div class="tag-title center-align">
-                    <i class="fas fa-comments"></i>&nbsp;&nbsp;留言板
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Spectre/">
+                                <span class="chip bg-color">Spectre</span>
+                            </a>
+                        
+                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                                <span class="chip bg-color">侧信道</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                硬件攻击
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2026-01-19
                 </div>
                 
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    1.1k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    4 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
             </div>
         </div>
-        <div class="card">
-            
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>本文笔者将基于Spectre攻击中的V1,V2,V4这三个变种，来尝试对Spectre类攻击建立抽象模型，并基于模型构思Spectre类攻击可能的防护方式</p>
+<h2 id="Spectre建模"><a href="#Spectre建模" class="headerlink" title="Spectre建模"></a>Spectre建模</h2><p>该类攻击的本质为处理器的预测执行（Speculative execution）和微架构侧信道之间的配合联动，从而导致用户信息泄露。</p>
+<p>目前笔者研究的三个Spectre攻击变种，其大体逻辑与攻击流程见下表</p>
+<table>
+<thead>
+<tr>
+<th>变体</th>
+<th>名称</th>
+<th>核心机制</th>
+<th>攻击条件 &amp; 流程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>v1</strong></td>
+<td><strong>Bounds Check Bypass</strong> (边界检查绕过)</td>
+<td><strong>条件分支预测</strong> (Conditional Branch Prediction)</td>
+<td><strong>条件</strong> ：代码中存在 <code>if (x &lt; array1_size)</code>之类的边界检查。 <strong>流程</strong> ：<br>1. 攻击者训练分支预测器（多次输入合法的 <code>x</code>），使其倾向于预测“跳转成立”。<br>2. 攻击者输入越界的 <code>x</code>。<br>3. CPU预测检查通过，<strong>推测执行</strong>越界读取 <code>array1[x]</code>（秘密数据），并将其作为索引访问 <code>array2(ASCII字符 256*CachelineSize)</code>。<br>4. <code>array2</code> 的特定Cache Line被加载。<br>5. CPU发现预测错误，回滚状态，但Cache变化保留。</td>
+</tr>
+<tr>
+<td><strong>v2</strong></td>
+<td><strong>Branch Target Injection</strong> (分支目标注入)</td>
+<td><strong>间接分支预测</strong> (Indirect Branch Prediction)</td>
+<td><strong>条件</strong> ：存在间接跳转指令（如虚函数调用、函数指针），且攻击者能操控BTB（分支目标缓冲）。 <strong>流程</strong> ：<br>1. 攻击者污染BTB，让CPU误以为某个间接跳转的目标是攻击者指定的“Gadget代码”（通常存在于共享库中）。<br>2. 受害者执行该跳转时，CPU<strong>推测执行</strong>跳转到Gadget。<br>3. Gadget代码执行类似v1的侧信道操作。<br>4. 预测失败回滚，但cache泄露完成。</td>
+</tr>
+<tr>
+<td><strong>v4</strong></td>
+<td><strong>Speculative Store Bypass</strong> (推测性存储绕过)</td>
+<td><strong>内存依赖预测</strong> (Memory Disambiguation)</td>
+<td><strong>条件</strong> ：后序的Load指令依赖前序的Store指令，但地址计算尚未完成。 <strong>流程</strong> ：<br>1. 内存依赖预测器（Memory Disambiguation Predictor）猜测当前的Load与之前的Store <strong>无关</strong> （地址不冲突）。<br>2. CPU允许Load指令 <strong>提前（乱序）执行</strong> ，读取了旧的内存值（或错误值）。<br>3. 利用该值进行侧信道访问。<br>4. 地址计算完成，发现冲突，回滚。</td>
+</tr>
+</tbody></table>
+<p>综合以上变种运用条件，我们可以抽象出该类攻击达成所必须满足的核心要素：</p>
+<ol>
+<li><strong>预测执行 ：</strong>  存在一个短暂、会被丢弃的窗口期，在这个期间内，投机操作可以获取不被允许的秘密信息</li>
+<li><strong>微架构组件的共享特性：</strong> 在预测执行结束以后，基于cache、分支预测器等组件的共享特性，其内部状态将会出现对应变化</li>
+</ol>
+<p>基于该条件细化条件为状态机</p>
+<pre class="mermaid">graph TB
+    %% 8.8.0 兼容修复版：移除敏感字符
+  
+    subgraph Attacker_Domain [攻击者域]
+        InputGen[1. 输入生成与训练]
+        Probe[5. 侧信道探测]
+        Analysis[6. 统计分析与去噪]
+        SecretRecovered((秘密恢复))
+    end
+
+    subgraph CPU_Core [处理器微架构]
+  
+        subgraph Frontend [前端预测单元]
+            PHT[PHT或BTB状态]
+            Prediction{预测逻辑}
+        end
+  
+        subgraph Execution [执行引擎]
+            NormalPath[正常路径]
+            TransientPath[瞬态路径]
+            Squash[回滚机制]
+        end
+  
+        subgraph Backend [后端资源]
+            Regs[寄存器-可回滚]
+            Cache[Cache-持久化]
+        end
+    end
+
+    %% 攻击流程连接
+    InputGen --训练欺骗--> PHT
+    PHT --误导--> Prediction
+  
+    Prediction --Check Pass--> NormalPath
+    Prediction --Speculative execution 条件1--> TransientPath
+  
+    TransientPath --访问秘密--> Cache
+    NormalPath --正常访问--> Cache
+  
+    TransientPath --触发--> Squash
+    Squash --恢复--> Regs
+    Squash --不恢复--> Cache
+  
+    %% 侧信道提取
+    Cache --条件2 共享资源区域残留数据--> Probe
+    Probe --原始数据--> Analysis
+    Analysis --多次采样--> SecretRecovered
+
+    %% 样式
+    style TransientPath fill:#f96,stroke:#333
+    style Cache fill:#9cf,stroke:#333
+    style Analysis fill:#f96,stroke:#333,color:#fff</pre>
+
+<p>四步解析：</p>
+<ol>
+<li><strong>Trigger：</strong> attacker构造特殊输入序列或反复执行特殊数据，训练CPU的预测器</li>
+<li><strong>Predict：</strong> CPU基于错误经验，遇到非法输入，或存在未知数据时，mis-predict错误路径，进入瞬态窗口</li>
+<li><strong>Side Effect</strong> ：瞬态窗口中所读取到的secret将通过<strong>代码逻辑</strong>，转换为架构上的某一状态（例如Cache痕迹）。</li>
+<li><strong>Persistence</strong> ：CPU 与真实程序流对比后发现预测错误，Rollback了寄存器等<strong>逻辑状态</strong>，但<strong>未清除</strong>架构状态  （Cache 残留），实现了瞬态窗口的信息留存。</li>
+</ol>
+
+                
+            </div>
+            <hr/>
 
             
 
-            
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Yssx</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="http://Yssx-g.github.io/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/">http://Yssx-g.github.io/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">Yssx</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
 
-            
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
 
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/Spectre/">
+                                    <span class="chip bg-color">Spectre</span>
+                                </a>
+                            
+                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                                    <span class="chip bg-color">侧信道</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
             
-            <style>
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
     .valine-card {
         margin: 1.5rem auto;
     }
@@ -637,15 +961,243 @@
     });
 </script>
 
-            
-			
-			
+    
 
-            
+    
 
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="spectre攻击建模及防护设想">
+                        
+                        <span class="card-title">spectre攻击建模及防护设想</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            总结常见分支预测执行漏洞以及对应原理
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-19
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                    硬件攻击
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Spectre/">
+                        <span class="chip bg-color">Spectre</span>
+                    </a>
+                    
+                    <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                        <span class="chip bg-color">侧信道</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="分支预测执行漏洞原理综述">
+                        
+                        <span class="card-title">分支预测执行漏洞原理综述</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            总结常见分支预测执行漏洞以及对应原理
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-18
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                    硬件攻击
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                        <span class="chip bg-color">侧信道，分支预测</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
         </div>
     </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
 </main>
+
+
 
 
     <footer class="page-footer bg-color">

@@ -431,12 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/Spectre/">
-                                <span class="chip bg-color">Spectre</span>
-                            </a>
-                        
-                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
-                                <span class="chip bg-color">侧信道</span>
+                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                <span class="chip bg-color">侧信道，分支预测</span>
                             </a>
                         
                     </div>
@@ -998,7 +994,7 @@ set_up_trampoline:
                                  ;     注意：只有真实commit&#x2F;execution才会“落地修改”！
     ret                          ; [3] ret从栈（已经被mov改写）弹出目标 -&gt; 跳转到%r11
                                  ;     commit时才pop，安全跳转
-                                 ;     投机期则ret永远预测跳回本函数的mov这一行（由RSB控制）    
+                                 ;     投机期则ret永远预测跳回本函数的mov这一行（由RSB控制）  
 
 trap_loop:                       ; [4] trap loop是保险兜底，不会被常规流程执行
     pause   
@@ -1248,12 +1244,8 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/Spectre/">
-                                    <span class="chip bg-color">Spectre</span>
-                                </a>
-                            
-                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
-                                    <span class="chip bg-color">侧信道</span>
+                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                    <span class="chip bg-color">侧信道，分支预测</span>
                                 </a>
                             
                         </div>
@@ -1560,18 +1552,17 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/">
+                <a href="/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="分支预测执行漏洞原理综述">
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="spectre攻击建模及防护设想">
                         
-                        <span class="card-title">分支预测执行漏洞原理综述</span>
+                        <span class="card-title">spectre攻击建模及防护设想</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -1581,9 +1572,9 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-18
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-01-19
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1596,7 +1587,6 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
@@ -1871,6 +1861,15 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
             
             <br>
             
+
+            
+                <script src='https://unpkg.com/mermaid/dist/mermaid.min.js'></script>
+                <script>
+                  if (window.mermaid) {
+                    mermaid.initialize({theme: 'forest'});
+                  }
+                </script>
+              
         </div>
         <div class="col s12 m4 l4 social-link social-statis">
     <a href="https://github.com/Yssx-g" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
