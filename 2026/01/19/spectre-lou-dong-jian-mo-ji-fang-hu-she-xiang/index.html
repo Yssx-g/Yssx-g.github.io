@@ -500,7 +500,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>本文笔者将基于Spectre攻击中的V1,V2,V4这三个变种，来尝试对Spectre类攻击建立抽象模型，并基于模型构思Spectre类攻击可能的防护方式</p>
-<h2 id="Spectre建模"><a href="#Spectre建模" class="headerlink" title="Spectre建模"></a>Spectre建模</h2><p>该类攻击的本质为处理器的预测执行（Speculative execution）和微架构侧信道之间的配合联动，从而导致用户信息泄露。</p>
+<h2 id="Spectre攻击建模"><a href="#Spectre攻击建模" class="headerlink" title="Spectre攻击建模"></a>Spectre攻击建模</h2><p>该类攻击的本质为处理器的预测执行（Speculative execution）和微架构侧信道之间的配合联动，从而导致用户信息泄露。</p>
 <p>目前笔者研究的三个Spectre攻击变种，其大体逻辑与攻击流程见下表</p>
 <table>
 <thead>
@@ -596,7 +596,7 @@
 <li><strong>Side Effect</strong> ：瞬态窗口中所读取到的secret将通过<strong>代码逻辑</strong>，转换为架构上的某一状态（例如Cache痕迹）。</li>
 <li><strong>Persistence</strong> ：CPU 与真实程序流对比后发现预测错误，Rollback了寄存器等<strong>逻辑状态</strong>，但<strong>未清除</strong>架构状态  （Cache 残留），实现了瞬态窗口的信息留存。</li>
 </ol>
-
+<h2 id="防护设想及建模"><a href="#防护设想及建模" class="headerlink" title="防护设想及建模"></a>防护设想及建模</h2>
                 
             </div>
             <hr/>
@@ -1065,8 +1065,12 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
-                        <span class="chip bg-color">侧信道，分支预测</span>
+                    <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                        <span class="chip bg-color">侧信道</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                        <span class="chip bg-color">分支预测</span>
                     </a>
                     
                 </div>
