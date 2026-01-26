@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Spectre-v1, Yssx&#39;s Blog">
+    <meta name="keywords" content="SpecLFB防护技术的详细解读, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Spectre-v1 | Yssx&#39;s Blog</title>
+    <title>SpecLFB防护技术的详细解读 | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Spectre-v1</h1>
+                    <h1 class="description center-align post-title">SpecLFB防护技术的详细解读</h1>
                 </div>
             </div>
         </div>
@@ -435,8 +435,8 @@
                                 <span class="chip bg-color">侧信道</span>
                             </a>
                         
-                            <a href="/tags/Spectre/">
-                                <span class="chip bg-color">Spectre</span>
+                            <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                <span class="chip bg-color">分支预测</span>
                             </a>
                         
                     </div>
@@ -460,7 +460,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-12-02
+                    2026-01-26
                 </div>
                 
 
@@ -469,14 +469,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.2k
+                    1.9k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    4 分
+                    6 分
                 </div>
                 
 
@@ -499,47 +499,53 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="Spectre-V1简介"><a href="#Spectre-V1简介" class="headerlink" title="Spectre-V1简介"></a>Spectre-V1简介</h3><p>Spectre-V1是Spectre(幽灵)漏洞攻击的一个变种，是一种针对处理器硬件分支预测特性的攻击方法：它主要利用分支预测对硬件cache有着不回退的影响这一点来进行常规的侧信道攻击</p>
-<p><img src="/2025/12/02/spectre-v1/1764689207794.png" alt="常见流水线CPU结构"></p>
-<p>首先我们要明白，分支预测为何会对数据cache产生影响。在流水线CPU中，为了加速CPU执行速度，常常会进行分支预测。如果一个条件判断多次正确，那么CPU将会在下一次读取相同指令时先默认该条件判断为真，对指令进行译码，读取数据等操作。而真正的数据计算则是会在EX阶段进行，如果条件错误，CPU将在此时flush后续指令，避免错误指令执行。但我们的数据读取是在EX阶段所执行的，而又众所周知，读取数据将会在cache中留下痕迹。此时虽然我们的错误指令并未真正执行，但cache中其实已经写入了我们想要得到的数据</p>
-<p><img src="/2025/12/02/spectre-v1/1764689432405.png" alt="常见攻击片段"></p>
-<p>正如上图所示，当我们多次给出正确的X值时，CPU将会默认该条件成立。那么此时，我们使用攻击地址和array1数组的相对偏移作为index，则攻击地址的内容将会被逐字节逐次写入到cache中。</p>
-<p>比如此时array1[x]&#x3D;’H’,ASCII码值为72,那么array2[72*4096]将会被加载到cache中去，后续我们再读取array2[72*4096]中的数据就会远远快于其他数据，我们便可以通过这个时间差异进行侧信道攻击</p>
-<h3 id="系统检测"><a href="#系统检测" class="headerlink" title="系统检测"></a>系统检测</h3><p>使用开源工具，来检查Ubuntun虚拟机是否支持Spectre-V1变体的攻击</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/speed47/spectre-meltdown-checker.git
-<span class="token builtin class-name">cd</span>  spectre-meltdown-checker
-<span class="token function">sudo</span> ./spectre-meltdown-checker.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p><img src="/2025/12/02/spectre-v1/1764691329626.png"></p>
-<p>可以发现有很多缓解措施都是没有使用的，那么我们的V1攻击应该可以执行</p>
-<p>接下来我们给出一个Spectre-V1攻击的示例仓库源码</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/Eugnis/spectre-attack.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>笔者将逐步解析该段攻击代码</p>
-<h3 id="Victim"><a href="#Victim" class="headerlink" title="Victim"></a>Victim</h3><p>Victim段的代码诸如上述所言，首先定义了攻击所需的array1和array2数组，并且为了防止两个数组中的数据落在同一cache缓存行中（如果array1中有部分数据与array2缓存行重叠，那么在使用array1攻击的同时，会将我们所不愿意加载的array2的cache line加载进cache，使得每次攻击无法精准判断对应的字符），在数组中间定义了unused数组用于占位；</p>
-<p>其中unused数组大小和array2数组中的512依据设备具体的cache line大小确定，为一单位cache line 大小</p>
-<p>接下来使用经典的漏洞结构，便于我们后续向cache中注入指定数据</p>
-<p><img src="/2025/12/02/spectre-v1/1764691666289.png"></p>
-<h3 id="Initiate"><a href="#Initiate" class="headerlink" title="Initiate"></a>Initiate</h3><p>为了便于学习具体攻击方法，我们首先浏览一下main函数中初始化的变量</p>
-<p>可以发现 默认攻击模式下 <code>malicious_x</code>正是攻击地址与array1的相对偏移值，而指定参数模式下，则是可以选定具体的地址进行攻击</p>
-<p>记住 <code>malicious_x</code>是相对偏移，<code>len</code>则是攻击的长度</p>
-<p><img src="/2025/12/02/spectre-v1/1764692286616.png"></p>
-<h3 id="Attack"><a href="#Attack" class="headerlink" title="Attack"></a>Attack</h3><p>攻击代码部分首先定义了 <code>CACHE_HIT_THRESHOLD</code>用于判断数据是否在cache中</p>
-<p>其次对我们存储cache命中次数的results数组进行初始化。接下来进行999次攻击尝试，攻击具体细节如下：</p>
-<p>首先将cache中所有array2的缓存行清除，根据尝试次数来决定此次的training_x索引。重要的是接下来的循环：清空array1缓存，通过数学变换而非条件判断完成任务：每五轮正确预测后追加一轮攻击</p>
-<p><img src="/2025/12/02/spectre-v1/1764692496166.png"></p>
-<p>后续，遍历array2的所有cache line，并使用混淆方式乱序读取，防止编译器自行优化（167与255互质，可以遍历），如果时间小于我们设置的阈值，并且不处于正常情况下的array2前16个cache line，我们就将当前cache line的命中次数加1</p>
-<p><img src="/2025/12/02/spectre-v1/1764693167576.png"></p>
-<p>后续我们选出命中次数最多的前两行，并且可以设置剪枝条件，防止运行时间过久</p>
-<p><img src="/2025/12/02/spectre-v1/1764693373690.png"></p>
-<h3 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h3><p>我们得到了最大行和次大行，根据此时数值来确定字符</p>
-<p>while循环用于攻击指定长度的片段，通过攻击函数得到的value是行数，也就是字符的ASCII码值，score是字符对应行的命中次数。最终将窃取数据存在decode中</p>
-<p><img src="/2025/12/02/spectre-v1/1764693531868.png"></p>
-<h3 id="Show"><a href="#Show" class="headerlink" title="Show"></a>Show</h3><p>在此运行演示代码，Ubuntun虚拟机，成功获取目标字符串</p>
-<p><img src="/2025/12/02/spectre-v1/1764693728158.png"></p>
-<p>Windows主机，获取目标字符串的大量信息</p>
-<p><img src="/2025/12/02/spectre-v1/1764693808355.png"></p>
-<p>由此可见该攻击方式的普适性</p>
+                <p>本文讲述的攻击方法均基于此论文(<a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/usenixsecurity24-cheng-xiaoyu.pdf">usenixsecurity24-cheng-xiaoyu.pdf</a>)，如有不解之处，请对照原论文理解</p>
+<h3 id="SpecLFB简介"><a href="#SpecLFB简介" class="headerlink" title="SpecLFB简介"></a>SpecLFB简介</h3><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>核心逻辑：仅限制 “导致缓存缺失的不安全投机加载（MUSL）”，通过 LFB 安全检查阻止其修改缓存，验证安全后再刷新缓存。</p>
+<ul>
+<li>目标：消除由“投机加载导致的缓存写入（cache-fill）”所构成的主要 Spectre&#x2F;Transient‑Execution 缓存侧信道。即：防止任何“未被验证的（speculative&#x2F;unsafe）加载”把数据写入上层可被其它上下文观测到的缓存层（L1&#x2F;L2&#x2F;LLC），直到该加载被确认为 non‑speculative &#x2F; safe。</li>
+<li>受保护对象（Threat）：所有可能在推测路径上读取敏感数据并通过 cache 层引起可测副作用的 load（尤其 cache‑miss 导致的 refill）。</li>
+<li>假设&#x2F;边界：<ul>
+<li>我们不尝试一次性阻断所有微架构泄露（如端口争用、TLB 条目、DRAM-row effects 等），但尽力把最常用且易被利用的“cache-fill”通道切断或延迟。</li>
+<li>该方案是硬件特性，需要在 CPU 的 LFB（Line Fill Buffer &#x2F; fill buffer）与 ROB（Reorder Buffer）之间协作。</li>
+</ul>
+</li>
+</ul>
+<p>只针对会产生可观测缓存插入的“Memory-Unsafe Speculative Loads（MUSL）”，避免对所有投机加载一刀切导致大幅性能降损。</p>
+<p>同时一旦投机被验证为“safe”（例如分支被确认、store‑load 依赖解决、值预测验证），立即允许写回以减少延迟。</p>
+<h4 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h4><p>相较于其他防御方法(SpecASan，Retpoline等)而言，SpecLFB的优势在于：只需要对CPU的源码进行简单的增量，便可以防住Spectre类的大部分攻击如（V1,V2,V4,V5),凡是与写回cache相关的分支预测操作，我们后续均有可能通过CPU逻辑增量进行完整的防护。</p>
+<p>目前方案的CPU关键结构仅有</p>
+<ul>
+<li>ROB(重排序缓冲区)不安全掩码：与ROB条目一一对应的位向量(unsafe_bit)，用于判断MUSL</li>
+<li>LFB(行填充缓冲区)：关键字段为<strong>rob_entry_id</strong>，关联对应的ROB条目索引(用于查询unsafe_bit)</li>
+</ul>
+<p>增量结构简单易懂，便于在原有CPU基础上进行修改</p>
+<p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769411856686.png" title="设计概述"></p>
+<h3 id="防护方案分析"><a href="#防护方案分析" class="headerlink" title="防护方案分析"></a>防护方案分析</h3><h4 id="MUSL（Memory-Unsafe-Speculative-Load）来源分析"><a href="#MUSL（Memory-Unsafe-Speculative-Load）来源分析" class="headerlink" title="MUSL（Memory-Unsafe Speculative Load）来源分析"></a>MUSL（Memory-Unsafe Speculative Load）来源分析</h4><ol>
+<li><strong>控制流</strong>预测：通过分支预测单元(BPU)预测程序路径从而产生投机加载</li>
+<li><strong>处理推测执行</strong>：预测加载与存储间的数据依赖关系，产生投机加载</li>
+<li><strong>值预测</strong>：通过历史预测算术操作结果，对后续依赖指令进行投机加载</li>
+</ol>
+<p>根据以上场景来源分析，我们可以推断出ROB_Unsafebit的set方法</p>
+<h4 id="ROB不安全掩码结构分析"><a href="#ROB不安全掩码结构分析" class="headerlink" title="ROB不安全掩码结构分析"></a>ROB不安全掩码结构分析</h4><p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769412003454.png" alt="img" title="ROB掩码向量"></p>
+<p>论文中提到，控制流指令等为保证地址连续性，将单独占用一个ROB条目。而其他条目中如果有任意指令可能产生MUSL，则均会设置unsafe_bit为1</p>
+<p>令 M 和 N 分别表示 ROB 中的条目数和存储体数。 令<strong>r<em>i</em></strong>表示 ROB 不安全掩码的第 i ((i∈ [0, M- 1]) 位，令bij表示存储在 ROB 的<em><strong>i</strong></em>th条目的<em><strong>j</strong></em>th(j ∈ [0, N- 1] 存储体中的指令的安全状态。如果相应的指令可能生成MUSL，即它是不安全的，那么b<em>ij</em> &#x3D; 1；否则，b<em>ij</em> &#x3D; 0。</p>
+<p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769417413001.png" alt="1769417413001"></p>
+<p><strong>Unsafe_bit更新规则</strong></p>
+<p>对于存储在重排序缓冲区（ROB） 第 i 项的<em><strong>j</strong></em>th存储区中的指令，如果该指令微操作的不安全参数值为 true，则相应的b<em>ij</em>会被初始化为 1。导致缓存未命中的指令加载暂时被视为 MUSL， 因此 MUSL 加载的数据在进行时无法通过安全检查机制。</p>
+<ul>
+<li><strong>未解析控制流</strong>：根据BPU返回的信息，SpecLFB每个周期都会遍历ROB，根据指令是否仍处于该控制流下更新b<em>ij</em>。具体来说，如果指令之前没有未解析的旧控制指令，该指令的b<em>ij</em>应更新为0；否则，应设置为1。在遍历ROB时，SpecLFB会检查当前微操作所属的分支是否已解析。如果已解析，该指令的b<em>ij</em>应更新为0。</li>
+<li><strong>未解决的内存顺序中</strong> ：SpecLFB通过加载队列（LDQ）和存储队列（STQ）跟踪数据依赖关系。当将内存访问指令（记为A）放入LDQ&#x2F;SDQ时，SpecLFB会将其与LDQ&#x2F;STQ中每个条目的指令进行比较，以检查数据依赖关系。如果未发现与先前的存储&#x2F;加载指令存在数据依赖关系，则该指令的b<em>ij</em>应更新为0。当指令从LDQ&#x2F;SDQ中出队时，SpecLFB会更新指令之间的数据依赖关系。</li>
+</ul>
+<p>第i个ROB条目的所有b<em>ij</em>均为0时，其<em><strong>ri</strong></em>可以更新。该ROB条目的指令中<strong>MUSL加载的数据</strong>通过LFB的安全检查，并填充到L1D缓存中。推测的正确性得到验证时，SpecLFB会<strong>及时更新</strong>指令的b<em>ij</em>。</p>
+<p>此外，在SpecLFB等待更新ROBunsafe_masks期间，MSHR可以同时从低级缓存中请求MUSL的数据。一旦<strong>检查通过</strong>，请求的数据<strong>直接从LFB填充到L1D缓存</strong>中，而<strong>无需</strong>从低级缓存&#x2F;内存中获取，因此不会造成太多延迟。如果处理器验证出推测错误，相关指令会从流水线中被清除，且LFB中的相关数据<strong>会在改变L1D缓存状态之前失效</strong>。后续处理只需遵循处理器的回滚机制即可。</p>
+<h3 id="安全性分析"><a href="#安全性分析" class="headerlink" title="安全性分析"></a>安全性分析</h3><p>SpecLFB通过ROB unsafe_masks跟踪推测性加载。最初，<strong>所有</strong>推测性加载都被标记为不安全，因为它们的正确性尚未得到验证。ROB unsafe_masks确保只有在满足特定条件（例如，控制流解析、内存访问顺序已解决）时，推测性加载才被视为安全。</p>
+<p>以基于<strong>evict+reload</strong>的Spectre攻击为例。下图展示了SpecLFB如何阻止缓存侧信道的建立，其中每个格子代表一个缓存行。</p>
+<p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769421666739.png" title="防护流程(红色代表投机访问数据)"></p>
+<ul>
+<li>第一阶段：攻击者首先将指定的缓存行从缓存中驱逐出去。</li>
+<li>第二阶段：受害者在<strong>攻击者创造的条件下</strong>运行程序。例如，在Spectre v1和v2中，攻击者对分支预测器进行错误训练，使其沿着错误路径进行推测，从而<strong>触发瞬态执行</strong>。第一阶段中已被驱逐、但在瞬态执行期间需要访问的、由黄色格子代表的缓存行，将在第三阶段重新加载到缓存中。然而，在采用SpecLFB方案的处理器中，这些由红色格子代表的缓存行将被视为由<strong>MUSL</strong>加载的数据。在瞬态执行期间（即等待处理器验证推测时），这些缓存行<strong>无法通过安全检查</strong>填充到缓存中。</li>
+<li>第三阶段：攻击者探测在与第一阶段<strong>被逐出的缓存行</strong>相对应的内存地址处<strong>执行读取操作</strong>所需的时间。受害者在第二阶段访问过的缓存行会被重新加载到缓存中，这使得相应的黄色格子的访问时间明显短于不在缓存中的缓存行（以白色格子表示）。在采用SpecLFB方案的处理器中，受害者在第二阶段访问过的缓存行不会被重新填充到缓存中。这使得攻击者无法通过测量访问时间来确定哪些缓存行被访问过，从而防止了敏感数据的泄露</li>
+</ul>
 
                 
             </div>
@@ -566,7 +572,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://Yssx-g.github.io/2025/12/02/spectre-v1/">http://Yssx-g.github.io/2025/12/02/spectre-v1/</a>
+                    <a href="http://Yssx-g.github.io/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/">http://Yssx-g.github.io/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -608,8 +614,8 @@
                                     <span class="chip bg-color">侧信道</span>
                                 </a>
                             
-                                <a href="/tags/Spectre/">
-                                    <span class="chip bg-color">Spectre</span>
+                                <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
+                                    <span class="chip bg-color">分支预测</span>
                                 </a>
                             
                         </div>
@@ -916,17 +922,18 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2026/01/18/fen-zhi-yu-ce-zhi-xing-lou-dong-yuan-li-zong-shu/">
+                <a href="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="分支预测执行漏洞原理综述">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="SpecLFB防护技术的详细解读">
                         
-                        <span class="card-title">分支预测执行漏洞原理综述</span>
+                        <span class="card-title">SpecLFB防护技术的详细解读</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -936,9 +943,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2026-01-18
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-26
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -951,6 +958,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -973,31 +981,31 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/11/27/e-yi-dai-ma-fen-xi-shi-zhan-lab11/">
+                <a href="/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="恶意代码分析实战Lab11">
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="spectre攻击建模及防护设想">
                         
-                        <span class="card-title">恶意代码分析实战Lab11</span>
+                        <span class="card-title">spectre攻击建模及防护设想</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            笔者阅读过程中的有趣实验摘录（实验资源下载：https://www.nostrach.com/malware.htm）
+                            总结常见分支预测执行漏洞以及对应原理
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-27
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-19
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
-                                    软件安全
+                            <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                    硬件攻击
                                 </a>
                             
                             
@@ -1007,8 +1015,12 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98/">
-                        <span class="chip bg-color">恶意代码分析实战</span>
+                    <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                        <span class="chip bg-color">侧信道</span>
+                    </a>
+                    
+                    <a href="/tags/Spectre/">
+                        <span class="chip bg-color">Spectre</span>
                     </a>
                     
                 </div>

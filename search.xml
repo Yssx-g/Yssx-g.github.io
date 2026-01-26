@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>SpecLFB防护技术的详细解读</title>
+      <link href="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/"/>
+      <url>/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/</url>
+      
+        <content type="html"><![CDATA[<p>本文讲述的攻击方法均基于此论文(<a href="https://www.usenix.org/system/files/usenixsecurity24-cheng-xiaoyu.pdf">usenixsecurity24-cheng-xiaoyu.pdf</a>)，如有不解之处，请对照原论文理解</p><h3 id="SpecLFB简介"><a href="#SpecLFB简介" class="headerlink" title="SpecLFB简介"></a>SpecLFB简介</h3><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>核心逻辑：仅限制 “导致缓存缺失的不安全投机加载（MUSL）”，通过 LFB 安全检查阻止其修改缓存，验证安全后再刷新缓存。</p><ul><li>目标：消除由“投机加载导致的缓存写入（cache-fill）”所构成的主要 Spectre&#x2F;Transient‑Execution 缓存侧信道。即：防止任何“未被验证的（speculative&#x2F;unsafe）加载”把数据写入上层可被其它上下文观测到的缓存层（L1&#x2F;L2&#x2F;LLC），直到该加载被确认为 non‑speculative &#x2F; safe。</li><li>受保护对象（Threat）：所有可能在推测路径上读取敏感数据并通过 cache 层引起可测副作用的 load（尤其 cache‑miss 导致的 refill）。</li><li>假设&#x2F;边界：<ul><li>我们不尝试一次性阻断所有微架构泄露（如端口争用、TLB 条目、DRAM-row effects 等），但尽力把最常用且易被利用的“cache-fill”通道切断或延迟。</li><li>该方案是硬件特性，需要在 CPU 的 LFB（Line Fill Buffer &#x2F; fill buffer）与 ROB（Reorder Buffer）之间协作。</li></ul></li></ul><p>只针对会产生可观测缓存插入的“Memory-Unsafe Speculative Loads（MUSL）”，避免对所有投机加载一刀切导致大幅性能降损。</p><p>同时一旦投机被验证为“safe”（例如分支被确认、store‑load 依赖解决、值预测验证），立即允许写回以减少延迟。</p><h4 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h4><p>相较于其他防御方法(SpecASan，Retpoline等)而言，SpecLFB的优势在于：只需要对CPU的源码进行简单的增量，便可以防住Spectre类的大部分攻击如（V1,V2,V4,V5),凡是与写回cache相关的分支预测操作，我们后续均有可能通过CPU逻辑增量进行完整的防护。</p><p>目前方案的CPU关键结构仅有</p><ul><li>ROB(重排序缓冲区)不安全掩码：与ROB条目一一对应的位向量(unsafe_bit)，用于判断MUSL</li><li>LFB(行填充缓冲区)：关键字段为<strong>rob_entry_id</strong>，关联对应的ROB条目索引(用于查询unsafe_bit)</li></ul><p>增量结构简单易懂，便于在原有CPU基础上进行修改</p><p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769411856686.png" title="设计概述"></p><h3 id="防护方案分析"><a href="#防护方案分析" class="headerlink" title="防护方案分析"></a>防护方案分析</h3><h4 id="MUSL（Memory-Unsafe-Speculative-Load）来源分析"><a href="#MUSL（Memory-Unsafe-Speculative-Load）来源分析" class="headerlink" title="MUSL（Memory-Unsafe Speculative Load）来源分析"></a>MUSL（Memory-Unsafe Speculative Load）来源分析</h4><ol><li><strong>控制流</strong>预测：通过分支预测单元(BPU)预测程序路径从而产生投机加载</li><li><strong>处理推测执行</strong>：预测加载与存储间的数据依赖关系，产生投机加载</li><li><strong>值预测</strong>：通过历史预测算术操作结果，对后续依赖指令进行投机加载</li></ol><p>根据以上场景来源分析，我们可以推断出ROB_Unsafebit的set方法</p><h4 id="ROB不安全掩码结构分析"><a href="#ROB不安全掩码结构分析" class="headerlink" title="ROB不安全掩码结构分析"></a>ROB不安全掩码结构分析</h4><p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769412003454.png" alt="img" title="ROB掩码向量"></p><p>论文中提到，控制流指令等为保证地址连续性，将单独占用一个ROB条目。而其他条目中如果有任意指令可能产生MUSL，则均会设置unsafe_bit为1</p><p>令 M 和 N 分别表示 ROB 中的条目数和存储体数。 令<strong>r<em>i</em></strong>表示 ROB 不安全掩码的第 i ((i∈ [0, M- 1]) 位，令bij表示存储在 ROB 的<em><strong>i</strong></em>th条目的<em><strong>j</strong></em>th(j ∈ [0, N- 1] 存储体中的指令的安全状态。如果相应的指令可能生成MUSL，即它是不安全的，那么b<em>ij</em> &#x3D; 1；否则，b<em>ij</em> &#x3D; 0。</p><p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769417413001.png" alt="1769417413001"></p><p><strong>Unsafe_bit更新规则</strong></p><p>对于存储在重排序缓冲区（ROB） 第 i 项的<em><strong>j</strong></em>th存储区中的指令，如果该指令微操作的不安全参数值为 true，则相应的b<em>ij</em>会被初始化为 1。导致缓存未命中的指令加载暂时被视为 MUSL， 因此 MUSL 加载的数据在进行时无法通过安全检查机制。</p><ul><li><strong>未解析控制流</strong>：根据BPU返回的信息，SpecLFB每个周期都会遍历ROB，根据指令是否仍处于该控制流下更新b<em>ij</em>。具体来说，如果指令之前没有未解析的旧控制指令，该指令的b<em>ij</em>应更新为0；否则，应设置为1。在遍历ROB时，SpecLFB会检查当前微操作所属的分支是否已解析。如果已解析，该指令的b<em>ij</em>应更新为0。</li><li><strong>未解决的内存顺序中</strong> ：SpecLFB通过加载队列（LDQ）和存储队列（STQ）跟踪数据依赖关系。当将内存访问指令（记为A）放入LDQ&#x2F;SDQ时，SpecLFB会将其与LDQ&#x2F;STQ中每个条目的指令进行比较，以检查数据依赖关系。如果未发现与先前的存储&#x2F;加载指令存在数据依赖关系，则该指令的b<em>ij</em>应更新为0。当指令从LDQ&#x2F;SDQ中出队时，SpecLFB会更新指令之间的数据依赖关系。</li></ul><p>第i个ROB条目的所有b<em>ij</em>均为0时，其<em><strong>ri</strong></em>可以更新。该ROB条目的指令中<strong>MUSL加载的数据</strong>通过LFB的安全检查，并填充到L1D缓存中。推测的正确性得到验证时，SpecLFB会<strong>及时更新</strong>指令的b<em>ij</em>。</p><p>此外，在SpecLFB等待更新ROBunsafe_masks期间，MSHR可以同时从低级缓存中请求MUSL的数据。一旦<strong>检查通过</strong>，请求的数据<strong>直接从LFB填充到L1D缓存</strong>中，而<strong>无需</strong>从低级缓存&#x2F;内存中获取，因此不会造成太多延迟。如果处理器验证出推测错误，相关指令会从流水线中被清除，且LFB中的相关数据<strong>会在改变L1D缓存状态之前失效</strong>。后续处理只需遵循处理器的回滚机制即可。</p><h3 id="安全性分析"><a href="#安全性分析" class="headerlink" title="安全性分析"></a>安全性分析</h3><p>SpecLFB通过ROB unsafe_masks跟踪推测性加载。最初，<strong>所有</strong>推测性加载都被标记为不安全，因为它们的正确性尚未得到验证。ROB unsafe_masks确保只有在满足特定条件（例如，控制流解析、内存访问顺序已解决）时，推测性加载才被视为安全。</p><p>以基于<strong>evict+reload</strong>的Spectre攻击为例。下图展示了SpecLFB如何阻止缓存侧信道的建立，其中每个格子代表一个缓存行。</p><p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769421666739.png" title="防护流程(红色代表投机访问数据)"></p><ul><li>第一阶段：攻击者首先将指定的缓存行从缓存中驱逐出去。</li><li>第二阶段：受害者在<strong>攻击者创造的条件下</strong>运行程序。例如，在Spectre v1和v2中，攻击者对分支预测器进行错误训练，使其沿着错误路径进行推测，从而<strong>触发瞬态执行</strong>。第一阶段中已被驱逐、但在瞬态执行期间需要访问的、由黄色格子代表的缓存行，将在第三阶段重新加载到缓存中。然而，在采用SpecLFB方案的处理器中，这些由红色格子代表的缓存行将被视为由<strong>MUSL</strong>加载的数据。在瞬态执行期间（即等待处理器验证推测时），这些缓存行<strong>无法通过安全检查</strong>填充到缓存中。</li><li>第三阶段：攻击者探测在与第一阶段<strong>被逐出的缓存行</strong>相对应的内存地址处<strong>执行读取操作</strong>所需的时间。受害者在第二阶段访问过的缓存行会被重新加载到缓存中，这使得相应的黄色格子的访问时间明显短于不在缓存中的缓存行（以白色格子表示）。在采用SpecLFB方案的处理器中，受害者在第二阶段访问过的缓存行不会被重新填充到缓存中。这使得攻击者无法通过测量访问时间来确定哪些缓存行被访问过，从而防止了敏感数据的泄露</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 硬件攻击 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 侧信道 </tag>
+            
+            <tag> 分支预测 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>spectre攻击建模及防护设想</title>
       <link href="/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/"/>
       <url>/2026/01/19/spectre-lou-dong-jian-mo-ji-fang-hu-she-xiang/</url>
@@ -20,9 +47,9 @@
       
         <tags>
             
-            <tag> Spectre </tag>
-            
             <tag> 侧信道 </tag>
+            
+            <tag> Spectre </tag>
             
         </tags>
       
@@ -74,9 +101,9 @@
       
         <tags>
             
-            <tag> Spectre </tag>
-            
             <tag> 侧信道 </tag>
+            
+            <tag> Spectre </tag>
             
         </tags>
       
