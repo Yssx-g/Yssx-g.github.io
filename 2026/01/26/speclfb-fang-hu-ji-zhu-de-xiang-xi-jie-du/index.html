@@ -529,7 +529,7 @@
 <h4 id="ROB不安全掩码结构分析"><a href="#ROB不安全掩码结构分析" class="headerlink" title="ROB不安全掩码结构分析"></a>ROB不安全掩码结构分析</h4><p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769412003454.png" alt="img" title="ROB掩码向量"></p>
 <p>论文中提到，控制流指令等为保证地址连续性，将单独占用一个ROB条目。而其他条目中如果有任意指令可能产生MUSL，则均会设置unsafe_bit为1</p>
 <p>令 M 和 N 分别表示 ROB 中的条目数和存储体数。 令<strong>r<em>i</em></strong>表示 ROB 不安全掩码的第 i ((i∈ [0, M- 1]) 位，令bij表示存储在 ROB 的<em><strong>i</strong></em>th条目的<em><strong>j</strong></em>th(j ∈ [0, N- 1] 存储体中的指令的安全状态。如果相应的指令可能生成MUSL，即它是不安全的，那么b<em>ij</em> &#x3D; 1；否则，b<em>ij</em> &#x3D; 0。</p>
-<p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769417413001.png" alt="1769417413001"></p>
+<p><img src="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/1769417413001.png"></p>
 <p><strong>Unsafe_bit更新规则</strong></p>
 <p>对于存储在重排序缓冲区（ROB） 第 i 项的<em><strong>j</strong></em>th存储区中的指令，如果该指令微操作的不安全参数值为 true，则相应的b<em>ij</em>会被初始化为 1。导致缓存未命中的指令加载暂时被视为 MUSL， 因此 MUSL 加载的数据在进行时无法通过安全检查机制。</p>
 <ul>
