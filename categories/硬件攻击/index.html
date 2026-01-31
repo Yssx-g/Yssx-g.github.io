@@ -369,11 +369,11 @@
                 
                 
                 
-                <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" title="硬件攻击: 4">
+                <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" title="硬件攻击: 6">
                     <span class="chip center-align waves-effect waves-light
                              chip-active "
                             style="background-color: #F9EBEA;">硬件攻击
-                        <span class="tag-length">4</span>
+                        <span class="tag-length">6</span>
                     </span>
                 </a>
                 
@@ -400,6 +400,107 @@
             
             <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
+                    <a href="/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/">
+                        <div class="card-image tag-image">
+                            
+                            
+                            <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="TLB攻击防护策略分析">
+                            
+                            <span class="card-title">TLB攻击防护策略分析</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                Secure and Scalable TLB Partitioning 防御方案本方案是一种面向组相联TLB的集合级隔离架构，核心是通过安全域-非安全域划分、SID强绑定、空闲资源动态复用，在彻底防御TLB时序侧信道攻击的同时，平衡资源利
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-31
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                    硬件攻击
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                            <span class="chip bg-color">侧信道</span>
+                        </a>
+                        
+                        <a href="/tags/TLB/">
+                            <span class="chip bg-color">TLB</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/">
+                        <div class="card-image tag-image">
+                            
+                            
+                            <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SLAM攻击原理及条件分析">
+                            
+                            <span class="card-title">SLAM攻击原理及条件分析</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                一、攻击核心背景与原理基础1. 关键技术
+Linear Address Masking（LAM）&#x2F;Upper Address Ignore（UAI）：LAM是英特尔推出的硬件特性，可在解引用64位指针前掩码部分高位（LAM48掩码
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-30
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
+                                    硬件攻击
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
+                            <span class="chip bg-color">侧信道</span>
+                        </a>
+                        
+                        <a href="/tags/TLB/">
+                            <span class="chip bg-color">TLB</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article tag-post col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
                     <a href="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/">
                         <div class="card-image tag-image">
                             
@@ -412,7 +513,8 @@
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                总结常见分支预测执行漏洞以及对应原理
+                                本文讲述的攻击方法均基于此论文(usenixsecurity24-cheng-xiaoyu.pdf)，如有不解之处，请对照原论文理解
+SpecLFB简介概述核心逻辑：仅限制 “导致缓存缺失的不安全投机加载（MUSL）”，通过 LFB 安全检
                             
                         </div>
                         <div class="publish-info">
@@ -462,7 +564,8 @@
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                总结常见分支预测执行漏洞以及对应原理
+                                本文笔者将基于Spectre攻击中的V1,V2,V4这三个变种，来尝试对Spectre类攻击建立抽象模型，并基于模型构思Spectre类攻击可能的防护方式
+Spectre攻击建模该类攻击的本质为处理器的预测执行（Speculative ex
                             
                         </div>
                         <div class="publish-info">

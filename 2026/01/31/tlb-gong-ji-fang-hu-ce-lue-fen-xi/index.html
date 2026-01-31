@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="SLAM攻击原理及条件分析, Yssx&#39;s Blog">
+    <meta name="keywords" content="TLB攻击防护策略分析, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SLAM攻击原理及条件分析 | Yssx&#39;s Blog</title>
+    <title>TLB攻击防护策略分析 | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/5.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SLAM攻击原理及条件分析</h1>
+                    <h1 class="description center-align post-title">TLB攻击防护策略分析</h1>
                 </div>
             </div>
         </div>
@@ -460,7 +460,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2026-01-30
+                    2026-01-31
                 </div>
                 
 
@@ -469,14 +469,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    3.3k
+                    2k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    11 分
+                    7 分
                 </div>
                 
 
@@ -499,122 +499,117 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="一、攻击核心背景与原理基础"><a href="#一、攻击核心背景与原理基础" class="headerlink" title="一、攻击核心背景与原理基础"></a>一、攻击核心背景与原理基础</h2><h3 id="1-关键技术"><a href="#1-关键技术" class="headerlink" title="1. 关键技术"></a>1. 关键技术</h3><ul>
-<li><strong>Linear Address Masking（LAM）&#x2F;Upper Address Ignore（UAI）</strong>：LAM是英特尔推出的硬件特性，可在解引用64位指针前掩码部分高位（LAM48掩码62:48位，LAM57掩码62:57位）；UAI是AMD类似特性，直接忽略虚拟地址最高7位。二者初衷是让软件利用未翻译的地址高位存储元数据，却被SLAM攻击滥用为绕过地址规范性检查的工具。</li>
-<li><strong>未掩码Spectre Gadget</strong>：代码形式以指针双重解引用（如 <code>**secret</code>）为主，源于内核中广泛的指针遍历逻辑，将高熵机密直接编码为指针地址。与传统掩码Gadget（将机密转为数组索引，低熵）不同，未掩码Gadget此前因地址非规范、无法填充缓存被认为不可利用，却在SLAM攻击中成为核心载体。</li>
-</ul>
-<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token class-name">ssize_t</span> <span class="token function">kernfs_fop_read_iter</span><span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">kiocb</span> <span class="token operator">*</span>iocb<span class="token punctuation">,</span> <span class="token keyword">struct</span> <span class="token class-name">iov_iter</span> <span class="token operator">*</span>iter<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-      <span class="token keyword">struct</span> <span class="token class-name">file</span> <span class="token operator">*</span>f <span class="token operator">=</span> iocb<span class="token operator">-></span>ki_filp<span class="token punctuation">;</span>  <span class="token comment">// 攻击者控制iocb，注入恶意指针</span>
-      <span class="token keyword">struct</span> <span class="token class-name">seq_file</span> <span class="token operator">*</span>sf <span class="token operator">=</span> f<span class="token operator">-></span>private_data<span class="token punctuation">;</span>  <span class="token comment">// 解引用伪指针，触发TLB转换</span>
-      <span class="token comment">// ...</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<ul>
-<li><p><strong>TLB Evict+Reload隐通道</strong>：放弃传统缓存隐通道，利用地址转换阶段TLB（翻译后备缓冲器）状态变化传递信号。地址转换先于SMAP（监管模式访问保护）检查，即便内核态解引用用户指针触发异常，TLB仍会记录转换痕迹，攻击者通过驱逐并重新加载TLB条目，测量访问延迟获取机密。</p>
-</li>
-<li><p><strong>非规范地址</strong>：x86-64架构中，规范地址要求指针高位（4级分页为63:48位，5级为63:57位）与最高有效翻译位（4级为47位，5级为56位）一致，否则为非规范地址。SLAM攻击目标（如 <code>/etc/shadow</code>中ASCII密码哈希）编码为指针时，因ASCII字节最高位为0，必然是非规范地址。</p>
-<p><img src="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/1769760584359.png"></p>
-</li>
-</ul>
-<h3 id="2-攻击核心原理"><a href="#2-攻击核心原理" class="headerlink" title="2. 攻击核心原理"></a>2. 攻击核心原理</h3><p>SLAM（Spectre based on LAM）攻击本质是利用Intel LAM&#x2F;AMD UAI硬件特性或AMD TENA漏洞，突破传统防护限制，通过<strong>非规范地址转换的TLB隐通道</strong>，实现对未掩码Spectre Gadget的利用，最终泄露内核内存中的高熵机密（如root密码哈希）。其核心逻辑是：将ASCII机密字符串编码为非规范伪指针，诱导内核投机执行未掩码Gadget完成地址转换，再通过TLB隐通道捕捉转换痕迹，结合滑动与即时重映射技术逐字节泄露机密。</p>
-<h2 id="二、SLAM攻击三阶段核心流程"><a href="#二、SLAM攻击三阶段核心流程" class="headerlink" title="二、SLAM攻击三阶段核心流程"></a>二、SLAM攻击三阶段核心流程</h2><p>SLAM攻击围绕解决三大核心挑战（C1：扩展至用户指针、C2：扩展至非规范指针、C3：实现机密泄露）展开，分为三个关键阶段：</p>
-<h3 id="阶段一：构建TLB-Evict-Reload隐通道（解决C1）"><a href="#阶段一：构建TLB-Evict-Reload隐通道（解决C1）" class="headerlink" title="阶段一：构建TLB Evict+Reload隐通道（解决C1）"></a>阶段一：构建TLB Evict+Reload隐通道（解决C1）</h3><h4 id="1-挑战本质"><a href="#1-挑战本质" class="headerlink" title="1. 挑战本质"></a>1. 挑战本质</h4><p>传统缓存隐通道无法处理用户指针：内核态下解引用用户指针会触发SMAP保护，无法填充缓存行传递信号。而地址转换发生在SMAP检查之前，MMU需先完成地址转换找到PTE（页表项），才能检查特权位判断是否为用户内存，此过程会留下TLB状态痕迹。</p>
-<h4 id="2-技术实现步骤"><a href="#2-技术实现步骤" class="headerlink" title="2. 技术实现步骤"></a>2. 技术实现步骤</h4><ul>
-<li><strong>方案对比与选择</strong>：<ul>
-<li><strong>PTE探测</strong>：通过Prime+Probe等缓存攻击，探测根页表中被访问的缓存行，推断用户指针高位比特。但需较大投机窗口、信号噪声高、多层页表信号匹配难，最终被放弃。</li>
-<li><strong>TLB探测</strong>：依赖TLB Prime+Probe或Evict+Time攻击，获取Gadget访问的TLB集及对应指针比特。需较短窗口，但仅支持存在的用户地址且噪声更高（TLB集页粒度碰撞更频繁）。</li>
-<li><strong>TLB Evict+Reload（最终方案）</strong>：<ol>
-<li><strong>驱逐TLB条目</strong>：攻击者在用户态通过TLB驱逐集，清空目标用户指针对应的L1 TLB条目，保留L2 TLB有效条目。</li>
-<li><strong>触发投机执行</strong>：通过BHI（分支历史注入）劫持内核间接分支，诱使其投机执行未掩码Gadget（<code>**secret</code>），解引用用户指针触发地址转换，TLB记录转换状态（L2 TLB条目重新加载到L1 TLB）。</li>
-<li><strong>测量延迟</strong>：攻击者重新访问目标指针，测量TLB访问延迟。延迟低表示L1 TLB命中（Gadget执行转换，ASCII字节猜测正确），延迟高则猜测错误。</li>
-</ol>
-</li>
-</ul>
-</li>
-<li><strong>关键调优</strong>：<ul>
-<li><strong>缓存层级选择</strong>：L2缓存为最优选择。L1缓存与TLB并行查找会掩盖信号，更高层级缓存（如LLC、DRAM）会因微架构复杂性增加延迟抖动，L2缓存可平衡信号清晰度与抖动。</li>
-<li><strong>TLB层级选择</strong>：优先利用L1 TLB miss与L2 TLB hit的信号。仅驱逐L1 TLB条目，保留L2 TLB条目，避免L2 TLB miss带来的页表遍历抖动，且短延迟可缩短投机窗口，帮助绕过部分防护。</li>
-<li><strong>页面大小选择</strong>：采用4KB页面。内核常用2MB页面存储自身文本和数据、1GB页面用于物理内存直接映射，4KB页面在TLB中占用独立分区，受内核干扰最小，可最大化信号纯度。</li>
-</ul>
-</li>
-</ul>
-<h3 id="阶段二：绕过地址规范性检查（解决C2）"><a href="#阶段二：绕过地址规范性检查（解决C2）" class="headerlink" title="阶段二：绕过地址规范性检查（解决C2）"></a>阶段二：绕过地址规范性检查（解决C2）</h3><h4 id="1-挑战本质-1"><a href="#1-挑战本质-1" class="headerlink" title="1. 挑战本质"></a>1. 挑战本质</h4><p>SLAM攻击目标（ASCII字符串）编码为指针时必然是非规范地址，传统模式下直接访问会触发异常，无法完成地址转换，TLB隐通道无痕迹可捕捉。需通过硬件特性或漏洞，让非规范地址通过规范性检查，完成地址转换。</p>
-<h4 id="2-分平台技术实现"><a href="#2-分平台技术实现" class="headerlink" title="2. 分平台技术实现"></a>2. 分平台技术实现</h4><ul>
-<li><p><strong>Intel平台（LAM特性）</strong>：</p>
-<ul>
-<li>LAM掩码机制：LAM48（4级分页）掩码62:48位，强制这些位复制自47位；LAM57（5级分页）掩码62:57位，复制自56位。仅保留bit 63作为特殊检查位，要求其与最高有效翻译位相等。</li>
-<li>绕过原理：LAM自动“修正”指针高位，使非规范指针变为规范形式。SLAM攻击目标为ASCII字符串，伪指针bit 47（最高有效翻译位）与bit 63均为0，天然满足LAM检查要求，非规范指针可通过转换。</li>
-<li>关键特性：LAM对用户指针的掩码生效且忽略特权级别，内核解引用用户传入的非规范指针时，LAM仍执行掩码操作，为跨用户态-内核态利用提供可能。</li>
-</ul>
-<p><img src="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/1769760642596.png"></p>
-</li>
-<li><p><strong>AMD新一代平台（UAI特性）</strong>：</p>
-<ul>
-<li>UAI机制：直接忽略虚拟地址最高7位，仅使用低57位进行地址转换。</li>
-<li>绕过原理：4级分页下，UAI忽略63:57位，但56:48位仍需满足规范要求，无法支持通用ASCII字符串；5级分页下，56:48位纳入地址转换（索引5级页表），非规范ASCII指针可通过转换，适配TLB隐通道。</li>
-</ul>
-</li>
-<li><p><strong>AMD老旧平台（TENA漏洞）</strong>：</p>
-<ul>
-<li>TENA漏洞特性：部分老旧AMD CPU（如Ryzen 7 2700X）中，地址转换与规范性检查并行执行。CPU用指针低48位查询TLB和L1缓存，同时用高位检查规范性，非规范地址可触发短暂TLB状态更新。</li>
-<li>利用原理：TLB Evict+Reload隐通道需TLB命中，实验证实L2 TLB命中即可触发短暂非规范访问。攻击者驱逐L1 TLB条目，保留L2 TLB条目，诱导内核投机执行Gadget，非规范地址通过低48位完成TLB转换，留下可探测痕迹。</li>
-</ul>
-</li>
-</ul>
-<p><img src="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/1769760658623.png" title="并行查找"></p>
-<p><img src="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/1769760677684.png" title="TLB与L1D cache的bit范围"></p>
-<h3 id="阶段三：滑动-即时重映射实现机密泄露（解决C3）"><a href="#阶段三：滑动-即时重映射实现机密泄露（解决C3）" class="headerlink" title="阶段三：滑动+即时重映射实现机密泄露（解决C3）"></a>阶段三：滑动+即时重映射实现机密泄露（解决C3）</h3><h4 id="1-挑战本质-2"><a href="#1-挑战本质-2" class="headerlink" title="1. 挑战本质"></a>1. 挑战本质</h4><p>即使完成非规范地址转换，伪指针仍有31位熵（ASCII字节高位为0，从36位降至31位），对应8TB地址空间，无法直接探测。需通过技术手段降低熵值，实现逐字节泄露。</p>
-<h4 id="2-技术实现步骤-1"><a href="#2-技术实现步骤-1" class="headerlink" title="2. 技术实现步骤"></a>2. 技术实现步骤</h4><ul>
-<li><p><strong>滑动技术（熵减核心）</strong>：</p>
-<ul>
-<li>原理：从已知ASCII字符串片段（如 <code>/etc/shadow</code>中 <code>deamon</code>后缀）开始，逐字节平移伪指针，每次仅聚焦1个未知字节。例如反向滑动时，伪指针“向左滑”1字节，新伪指针仅包含1个未知字节+所有已知字节，熵从31位降至7位（ASCII字节仅需探测0-127）。</li>
-<li>优势：反向滑动的伪指针地址连续（正向滑动地址分散），后续重映射更高效，为SLAM默认选择。</li>
-</ul>
-</li>
-<li><p><strong>即时重映射（高效探测）</strong>：</p>
-<ul>
-<li>问题：伪指针地址范围达8TB，无法一次性映射所有可能地址，一次性映射会产生大量页错误且内存占用过高。</li>
-<li>解决方案：动态调整用户态重加载缓冲区地址。首次映射覆盖128个页面（对应7位熵的所有可能），每次滑动后通过 <code>mremap</code>系统调用，将缓冲区快速调整到当前需探测的128个页面范围。反向滑动时，缓冲区为连续地址块，仅需1次系统调用即可完成重映射，避免页错误与内存浪费。</li>
-</ul>
-</li>
-<li><p><strong>逐字节泄露流程</strong>：</p>
+                <h1 id="Secure-and-Scalable-TLB-Partitioning-防御方案"><a href="#Secure-and-Scalable-TLB-Partitioning-防御方案" class="headerlink" title="Secure and Scalable TLB Partitioning 防御方案"></a>Secure and Scalable TLB Partitioning 防御方案</h1><p>本方案是一种面向<strong>组相联TLB</strong>的集合级<strong>隔离</strong>架构，核心是通过<strong>安全域-非安全域划分、SID强绑定、空闲资源动态复用</strong>，在彻底防御TLB时序侧信道攻击的同时，平衡资源利用率与性能开销，解决传统静态分区资源浪费、随机化防御概率性失效的痛点。</p>
+<h2 id="一、-核心防御原理"><a href="#一、-核心防御原理" class="headerlink" title="一、 核心防御原理"></a>一、 核心防御原理</h2><p>TLB时序侧信道攻击的核心前提是<strong>攻击者与受害者共享TLB集合</strong>，且<strong>攻击者可观测受害者的TLB命中&#x2F;缺失时序差异</strong>。本方案通过以下核心思路从根源上破坏攻击前提：</p>
 <ol>
-<li>攻击者从已知字符串片段（如 <code>deamon</code>）出发，反向滑动伪指针，确定当前需探测的未知字节对应的128个可能地址。</li>
-<li>通过 <code>mremap</code>即时映射这128个页面作为重加载缓冲区。</li>
-<li>驱逐目标伪指针对应的L1 TLB条目，触发内核投机执行未掩码Gadget。</li>
-<li>重新访问128个缓冲区地址，测量TLB延迟，延迟最低的地址对应正确ASCII字节。</li>
-<li>重复上述步骤，逐字节拼接出完整机密（如root密码哈希）。</li>
+<li><strong>集合级域隔离</strong>：将组相联TLB的所有集合（Set）划分为<strong>安全域（S域）<strong>与</strong>非安全域（NS域）</strong>，S域供安全敏感进程使用，NS域供普通进程使用。通过硬件强制隔离，让不同安全等级进程的TLB集合无交集。</li>
+<li><strong>SID唯一绑定机制</strong>：为每个安全进程分配全局唯一的<strong>安全域标识（SID）</strong>，通过分区查找表将SID与S域内固定数量的专属Set强绑定，确保安全进程仅能访问自身绑定的Set，实现进程间严格隔离。</li>
+<li><strong>空闲资源动态复用</strong>：当S域Set处于空闲状态时，允许非安全进程并行查找和复用；当有安全进程申请时，立即清空该Set并恢复隔离，实现“安全不降级、资源不浪费”。</li>
 </ol>
-</li>
-</ul>
-<p><img src="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/1769760736581.png" title="前后向搜索对比"></p>
-<h2 id="三、端到端完整攻击流程（以泄露Linux内核root密码哈希为例）"><a href="#三、端到端完整攻击流程（以泄露Linux内核root密码哈希为例）" class="headerlink" title="三、端到端完整攻击流程（以泄露Linux内核root密码哈希为例）"></a>三、端到端完整攻击流程（以泄露Linux内核root密码哈希为例）</h2><p>在完成三阶段核心技术准备后，SLAM攻击通过四个步骤实现端到端机密泄露：</p>
-<h3 id="1-步骤一：突破KASLR（内核地址空间布局随机化）"><a href="#1-步骤一：突破KASLR（内核地址空间布局随机化）" class="headerlink" title="1. 步骤一：突破KASLR（内核地址空间布局随机化）"></a>1. 步骤一：突破KASLR（内核地址空间布局随机化）</h3><ul>
-<li>利用预取侧信道构造预言机，基于预取指令的翻译依赖时序（如文献[36]方法），探测内核物理内存直接映射区的随机基址。通过判断地址是否为有效内核地址，确定内核数据（如 <code>/etc/shadow</code>）的实际存储范围，为后续定位机密奠定基础。</li>
-</ul>
-<h3 id="2-步骤二：BHI分支劫持与Gadget触发"><a href="#2-步骤二：BHI分支劫持与Gadget触发" class="headerlink" title="2. 步骤二：BHI分支劫持与Gadget触发"></a>2. 步骤二：BHI分支劫持与Gadget触发</h3><ul>
-<li><strong>BHB碰撞寻找</strong>：基于BHI攻击策略[11]，通过 brute-force 方式反复生成随机分支历史，污染分支历史缓冲区（BHB），诱导内核系统调用调度器（目标间接分支）错误预测，跳转到目标未掩码Gadget。</li>
-<li><strong>扩大投机窗口</strong>：构建L2缓存驱逐集，清空L2缓存中与攻击者发起系统调用对应的系统调用表条目。当内核执行该系统调用时，需从内存重新加载系统调用表条目，延长投机执行窗口，确保未掩码Gadget完整执行地址转换。</li>
-<li><strong>碰撞验证（2步预言机）</strong>：<ul>
-<li>Step 1（快速路径）：将attacker构造的secret指针传入系统调用，若Gadget被触发，其读取机密的操作会访问重加载缓冲区，产生可测量的TLB信号。但可能存在误报（其他指针追逐路径触发信号）。</li>
-<li>Step 2（慢速路径）：将上一步构建的指针替换为已知内核数据指针（如包含特定magic_num的用户页地址），若Gadget被触发，会解引用该指针产生TLB信号，验证碰撞有效性，排除误报。</li>
+<p><img src="/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/1769849173090.png" title="安全进程完整访问流程"></p>
+<h2 id="二、-设计分析"><a href="#二、-设计分析" class="headerlink" title="二、 设计分析"></a>二、 设计分析</h2><p>方案功能依赖4个关键组件协同实现，硬件开销极低且兼容主流架构：</p>
+<ol>
+<li><strong>分区查找表</strong><ul>
+<li>硬件维护的核心表，每个条目对应一个S域Set，包含 <code>Set ID</code> <code>SID</code> <code>状态（空闲/已分配）</code>三个字段。</li>
+<li>仅内核可通过特权指令修改，用户进程无访问权限，确保隔离规则不被篡改。</li>
 </ul>
 </li>
+<li><strong>SID管理机制</strong><ul>
+<li>安全进程通过内核自定义系统调用申请SID，内核原子化分配<strong>全局唯一的32位SID</strong>并存入进程PCB；普通进程默认SID&#x3D;0，无法访问S域已分配Set。</li>
+<li>原子分配机制保证无重复SID，防止攻击者伪造身份越权访问。</li>
 </ul>
-<h3 id="3-步骤三：定位-etc-shadow文件"><a href="#3-步骤三：定位-etc-shadow文件" class="headerlink" title="3. 步骤三：定位 /etc/shadow文件"></a>3. 步骤三：定位 <code>/etc/shadow</code>文件</h3><ul>
-<li>执行 <code>passwd</code>命令，确保 <code>/etc/shadow</code>文件驻留物理内存（避免页面交换导致机密不在内存中）。</li>
-<li>利用已构建的BHI信息泄露原语，通过TLB隐通道扫描内核物理内存直接映射区，查找以“root:$”（<code>/etc/shadow</code>中root条目前缀）开头的4KB页面，确定密码哈希所在的内存地址。</li>
+</li>
+<li><strong>并行查找机制（仅非安全进程）</strong><ul>
+<li>系统初始化时为每个NS域Set配对一个固定S域Set（如NS Set0↔S Set4），配对关系静态不变。（普通进程VA映射到S域时可通过配对关系转换set）</li>
+<li>非安全进程访问TLB时，并行查找“NS域Set+配对S域Set”，仅当S域Set空闲时才参与查找，已分配的S域Set会被硬件屏蔽。</li>
 </ul>
-<h3 id="4-步骤四：逐字节泄露root密码哈希"><a href="#4-步骤四：逐字节泄露root密码哈希" class="headerlink" title="4. 步骤四：逐字节泄露root密码哈希"></a>4. 步骤四：逐字节泄露root密码哈希</h3><ul>
-<li><strong>起始点选择</strong>：“root:$”前缀不适合反向滑动起始（需从已知后缀反向泄露），选择 <code>/etc/shadow</code>中第二个用户条目“deamon”作为已知后缀。</li>
-<li><strong>泄露执行</strong>：从“deamon”开始反向滑动伪指针，每次通过即时重映射调整128页缓冲区，结合TLB Evict+Reload探测当前未知字节。例如探测到某地址TLB延迟最低，确定该字节为“$”，逐步拼接出root密码哈希的完整字节序列（如“$y$j9T$…”）。</li>
-<li><strong>错误处理</strong>：利用TLB信号的冗余性（仅7位用于数据，其余位为已知签名），若探测结果与已知签名不匹配，请求重新探测，确保泄露准确性。实验显示，该过程在Intel i9-13900K上（软件模拟LAM），最快可在0.5分钟内泄露完整root密码哈希。</li>
+</li>
+<li><strong>动态分配与释放机制</strong><ul>
+<li><strong>分配</strong>：有空闲S域Set时，内核顺序遍历查找表选第一个空闲Set；无空闲时，随机选择已分配Set清空后重新绑定新SID。</li>
+<li><strong>释放</strong>：安全进程结束后，内核将其绑定的S域Set标记为空闲并清空，供后续复用。</li>
 </ul>
-<h2 id="四：攻击条件总结"><a href="#四：攻击条件总结" class="headerlink" title="四：攻击条件总结"></a>四：攻击条件总结</h2><ol>
-<li>绕过指针规范检测</li>
-<li>内核态地址转换结果直接写入TLB（可考虑区分内核地址与用户地址）</li>
-<li>TLB共享，可进行时序观测（考虑隔离）</li>
+</li>
 </ol>
+<h2 id="三、-防御流程演示"><a href="#三、-防御流程演示" class="headerlink" title="三、 防御流程演示"></a>三、 防御流程演示</h2><p>方案对安全进程和非安全进程设计差异化TLB访问流程，核心差异在于<strong>查找范围的决定因素（SID vs VA组索引）</strong>。</p>
+<h3 id="1-安全进程完整流程"><a href="#1-安全进程完整流程" class="headerlink" title="1.  安全进程完整流程"></a>1.  安全进程完整流程</h3><p>安全进程的TLB操作完全由SID主导，<strong>与VA组索引无关</strong>，流程如下：</p>
+<ol>
+<li><strong>SID申请与Set绑定</strong><ul>
+<li>安全进程启动，调用内核系统调用申请安全域；内核原子分配唯一SID并存入PCB。</li>
+<li>内核查找分区查找表：有空闲S域Set则顺序选取，无空闲则随机选已分配Set清空。</li>
+<li>更新分区查找表：将选中Set的SID设为当前进程SID，状态改为 <code>已分配</code>，完成强绑定。</li>
+</ul>
+</li>
+<li><strong>TLB查询</strong><ul>
+<li>进程发起TLB访问，硬件从PCB读取SID，查询分区查找表获取专属S域Set列表，<strong>屏蔽所有非绑定Set</strong>。</li>
+<li>硬件<strong>遍历</strong>专属Set列表内的所有Way，匹配 <code>VPN+ASID</code>：匹配成功则命中返回PPN，失败则触发TLB Miss。</li>
+</ul>
+</li>
+<li><strong>TLB Miss填充与替换</strong><ul>
+<li>Miss后MMU遍历页表获取 <code>VPN-PPN</code>映射，硬件<strong>忽略VA组索引</strong>，直接将条目填入专属Set的空闲Way。</li>
+<li>若专属Set无空闲Way，执行<strong>域内替换策略</strong>（如LRU），禁止跨Set替换。</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-非安全进程完整流程"><a href="#2-非安全进程完整流程" class="headerlink" title="2.  非安全进程完整流程"></a>2.  非安全进程完整流程</h3><p>非安全进程默认SID&#x3D;0，核心逻辑是<strong>并行查找+动态复用空闲S域Set</strong>，流程如下：</p>
+<ol>
+<li><strong>默认状态初始化</strong><ul>
+<li>进程启动时内核将其PCB的SID设为0，无访问S域已分配Set的权限。</li>
+</ul>
+</li>
+<li><strong>并行TLB查询</strong><ul>
+<li>进程发起TLB访问，硬件按 <code>VPN%set_size</code>计算组索引，定位对应的NS域Set，同时选中其配对的S域Set。</li>
+<li>查询分区查找表判断S域Set状态：空闲则并行查找两个Set，任意一个匹配 <code>VPN+ASID</code>即命中；已分配则屏蔽S域Set，仅查NS域Set。</li>
+</ul>
+</li>
+<li><strong>TLB Miss填充与替换</strong><ul>
+<li>Miss后MMU获取映射，优先填入NS域Set；若NS域Set无空闲，则填入配对的空闲S域Set。</li>
+<li>替换操作仅在NS域Set或空闲S域Set内执行。</li>
+</ul>
+</li>
+<li><strong>特殊场景：S域Set被分配给安全进程</strong><ul>
+<li>若普通进程正在复用某S域Set，该Set需分配给安全进程时，内核先清空Set内所有条目，再更新分区查找表将状态改为 <code>已分配</code>，硬件自动屏蔽普通进程对该Set的访问。</li>
+</ul>
+</li>
+</ol>
+<h2 id="四、-安全性分析"><a href="#四、-安全性分析" class="headerlink" title="四、 安全性分析"></a>四、 安全性分析</h2><p>本方案通过<strong>硬件强制的集合级隔离</strong>，从根源上破坏TLB时序侧信道攻击的核心前提，同时通过多重机制强化安全性。</p>
+<h3 id="1-破坏攻击核心前提"><a href="#1-破坏攻击核心前提" class="headerlink" title="1.  破坏攻击核心前提"></a>1.  破坏攻击核心前提</h3><ul>
+<li><strong>消除集合共享</strong>：安全进程的专属Set被SID强绑定，攻击者（无论属于NS域还是其他S域）无法访问受害者的Set，无法驱逐受害者的TLB条目。</li>
+<li><strong>屏蔽时序观测</strong>：跨域的TLB操作完全不可见，攻击者的访问时序仅反映自身Set状态，无法观测受害者的命中&#x2F;缺失延迟，无法推断敏感信息（如加密密钥、内核地址）。</li>
+</ul>
+<h3 id="2-典型攻击场景防御效果"><a href="#2-典型攻击场景防御效果" class="headerlink" title="2.  典型攻击场景防御效果"></a>2.  典型攻击场景防御效果</h3><table>
+<thead>
+<tr>
+<th>攻击场景</th>
+<th>防御效果</th>
+<th>核心原理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>非安全进程攻击安全进程</td>
+<td>完全防御</td>
+<td>攻击者被限制在NS域，无法访问安全进程的专属S域Set，无任何观测路径</td>
+</tr>
+<tr>
+<td>安全进程攻击其他安全进程</td>
+<td>完全防御</td>
+<td>不同安全进程的SID绑定不同S域Set，Set无交集，无法跨进程访问</td>
+</tr>
+<tr>
+<td>定点回收Set的侧信道攻击</td>
+<td>有效防御</td>
+<td>S域Set耗尽时随机选择回收目标，攻击者无法预测，无法通过定点回收制造信息泄露</td>
+</tr>
+</tbody></table>
+<h3 id="3-附加安全保障机制"><a href="#3-附加安全保障机制" class="headerlink" title="3.  附加安全保障机制"></a>3.  附加安全保障机制</h3><ul>
+<li><strong>域内替换限制</strong>：所有TLB替换操作仅在进程所属Set范围内执行，禁止跨域替换，避免替换行为泄露跨进程信息。</li>
+<li><strong>SID原子性与唯一性</strong>：SID由内核原子分配，存入内核空间的PCB，用户进程无法篡改或伪造，确保绑定关系不被破坏。</li>
+<li><strong>硬件层面强制隔离</strong>：分区查找表的访问、Set的屏蔽&#x2F;启用均由硬件实现，不依赖软件逻辑，避免软件漏洞导致的隔离失效。</li>
+</ul>
+<h3 id="4-方案局限性"><a href="#4-方案局限性" class="headerlink" title="4.  方案局限性"></a>4.  方案局限性</h3><ul>
+<li><strong>安全进程数量受限</strong>：安全进程的并发数受限于S域的总Set数量，若系统存在大量安全进程，频繁的Set清空与重绑定会带来性能开销。</li>
+<li><strong>GPU架构适配困难</strong>：方案基于CPU组相联TLB设计，GPU的TLB层级更复杂（如共享L3 TLB），需大幅修改设计才能适配。</li>
+<li><strong>Set分配无法动态调整</strong>：每个安全进程分配的Set数量固定，无法根据进程的实际工作量动态调整，存在资源分配不合理的风险。</li>
+</ul>
 
                 
             </div>
@@ -641,7 +636,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://Yssx-g.github.io/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/">http://Yssx-g.github.io/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/</a>
+                    <a href="http://Yssx-g.github.io/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/">http://Yssx-g.github.io/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -991,9 +986,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/">
                     <div class="card-image">
@@ -1011,9 +1007,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2026-01-31
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-31
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1026,6 +1022,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1048,13 +1045,13 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2026/01/26/speclfb-fang-hu-ji-zhu-de-xiang-xi-jie-du/">
+                <a href="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="SpecLFB防护技术的详细解读">
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SLAM攻击原理及条件分析">
                         
-                        <span class="card-title">SpecLFB防护技术的详细解读</span>
+                        <span class="card-title">SLAM攻击原理及条件分析</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -1065,7 +1062,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-26
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-30
                             </span>
                         <span class="publish-author">
                             
@@ -1086,8 +1083,8 @@
                         <span class="chip bg-color">侧信道</span>
                     </a>
                     
-                    <a href="/tags/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B/">
-                        <span class="chip bg-color">分支预测</span>
+                    <a href="/tags/TLB/">
+                        <span class="chip bg-color">TLB</span>
                     </a>
                     
                 </div>
