@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="TLB攻击防护策略分析, Yssx&#39;s Blog">
+    <meta name="keywords" content="SEED_LAB-Set_uid, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>TLB攻击防护策略分析 | Yssx&#39;s Blog</title>
+    <title>SEED_LAB-Set_uid | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">TLB攻击防护策略分析</h1>
+                    <h1 class="description center-align post-title">SEED_LAB-Set_uid</h1>
                 </div>
             </div>
         </div>
@@ -431,12 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
-                                <span class="chip bg-color">侧信道</span>
-                            </a>
-                        
-                            <a href="/tags/TLB/">
-                                <span class="chip bg-color">TLB</span>
+                            <a href="/tags/SEED-LAB/">
+                                <span class="chip bg-color">SEED_LAB</span>
                             </a>
                         
                     </div>
@@ -447,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E7%A1%AC%E4%BB%B6%E6%94%BB%E5%87%BB/" class="post-category">
-                                硬件攻击
+                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
+                                软件安全
                             </a>
                         
                     </div>
@@ -460,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2026-01-31
+                    2026-05-17
                 </div>
                 
 
@@ -476,7 +472,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    7 分
+                    8 分
                 </div>
                 
 
@@ -499,117 +495,200 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="Secure-and-Scalable-TLB-Partitioning-防御方案"><a href="#Secure-and-Scalable-TLB-Partitioning-防御方案" class="headerlink" title="Secure and Scalable TLB Partitioning 防御方案"></a>Secure and Scalable TLB Partitioning 防御方案</h1><p>本方案是一种面向<strong>组相联TLB</strong>的集合级<strong>隔离</strong>架构，核心是通过<strong>安全域-非安全域划分、SID强绑定、空闲资源动态复用</strong>，在彻底防御TLB时序侧信道攻击的同时，平衡资源利用率与性能开销，解决传统静态分区资源浪费、随机化防御概率性失效的痛点。</p>
-<h2 id="一、-核心防御原理"><a href="#一、-核心防御原理" class="headerlink" title="一、 核心防御原理"></a>一、 核心防御原理</h2><p>TLB时序侧信道攻击的核心前提是<strong>攻击者与受害者共享TLB集合</strong>，且<strong>攻击者可观测受害者的TLB命中&#x2F;缺失时序差异</strong>。本方案通过以下核心思路从根源上破坏攻击前提：</p>
-<ol>
-<li><strong>集合级域隔离</strong>：将组相联TLB的所有集合（Set）划分为<strong>安全域（S域）<strong>与</strong>非安全域（NS域）</strong>，S域供安全敏感进程使用，NS域供普通进程使用。通过硬件强制隔离，让不同安全等级进程的TLB集合无交集。</li>
-<li><strong>SID唯一绑定机制</strong>：为每个安全进程分配全局唯一的<strong>安全域标识（SID）</strong>，通过分区查找表将SID与S域内固定数量的专属Set强绑定，确保安全进程仅能访问自身绑定的Set，实现进程间严格隔离。</li>
-<li><strong>空闲资源动态复用</strong>：当S域Set处于空闲状态时，允许非安全进程并行查找和复用；当有安全进程申请时，立即清空该Set并恢复隔离，实现“安全不降级、资源不浪费”。</li>
-</ol>
-<p><img src="/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/1769849173090.png" title="安全进程完整访问流程"></p>
-<h2 id="二、-设计分析"><a href="#二、-设计分析" class="headerlink" title="二、 设计分析"></a>二、 设计分析</h2><p>方案功能依赖4个关键组件协同实现，硬件开销极低且兼容主流架构：</p>
-<ol>
-<li><strong>分区查找表</strong><ul>
-<li>硬件维护的核心表，每个条目对应一个S域Set，包含 <code>Set ID</code> <code>SID</code> <code>状态（空闲/已分配）</code>三个字段。</li>
-<li>仅内核可通过特权指令修改，用户进程无访问权限，确保隔离规则不被篡改。</li>
-</ul>
-</li>
-<li><strong>SID管理机制</strong><ul>
-<li>安全进程通过内核自定义系统调用申请SID，内核原子化分配<strong>全局唯一的32位SID</strong>并存入进程PCB；普通进程默认SID&#x3D;0，无法访问S域已分配Set。</li>
-<li>原子分配机制保证无重复SID，防止攻击者伪造身份越权访问。</li>
-</ul>
-</li>
-<li><strong>并行查找机制（仅非安全进程）</strong><ul>
-<li>系统初始化时为每个NS域Set配对一个固定S域Set（如NS Set0↔S Set4），配对关系静态不变。（普通进程VA映射到S域时可通过配对关系转换set）</li>
-<li>非安全进程访问TLB时，并行查找“NS域Set+配对S域Set”，仅当S域Set空闲时才参与查找，已分配的S域Set会被硬件屏蔽。</li>
-</ul>
-</li>
-<li><strong>动态分配与释放机制</strong><ul>
-<li><strong>分配</strong>：有空闲S域Set时，内核顺序遍历查找表选第一个空闲Set；无空闲时，随机选择已分配Set清空后重新绑定新SID。</li>
-<li><strong>释放</strong>：安全进程结束后，内核将其绑定的S域Set标记为空闲并清空，供后续复用。</li>
-</ul>
-</li>
-</ol>
-<h2 id="三、-防御流程演示"><a href="#三、-防御流程演示" class="headerlink" title="三、 防御流程演示"></a>三、 防御流程演示</h2><p>方案对安全进程和非安全进程设计差异化TLB访问流程，核心差异在于<strong>查找范围的决定因素（SID vs VA组索引）</strong>。</p>
-<h3 id="1-安全进程完整流程"><a href="#1-安全进程完整流程" class="headerlink" title="1.  安全进程完整流程"></a>1.  安全进程完整流程</h3><p>安全进程的TLB操作完全由SID主导，<strong>与VA组索引无关</strong>，流程如下：</p>
-<ol>
-<li><strong>SID申请与Set绑定</strong><ul>
-<li>安全进程启动，调用内核系统调用申请安全域；内核原子分配唯一SID并存入PCB。</li>
-<li>内核查找分区查找表：有空闲S域Set则顺序选取，无空闲则随机选已分配Set清空。</li>
-<li>更新分区查找表：将选中Set的SID设为当前进程SID，状态改为 <code>已分配</code>，完成强绑定。</li>
-</ul>
-</li>
-<li><strong>TLB查询</strong><ul>
-<li>进程发起TLB访问，硬件从PCB读取SID，查询分区查找表获取专属S域Set列表，<strong>屏蔽所有非绑定Set</strong>。</li>
-<li>硬件<strong>遍历</strong>专属Set列表内的所有Way，匹配 <code>VPN+ASID</code>：匹配成功则命中返回PPN，失败则触发TLB Miss。</li>
-</ul>
-</li>
-<li><strong>TLB Miss填充与替换</strong><ul>
-<li>Miss后MMU遍历页表获取 <code>VPN-PPN</code>映射，硬件<strong>忽略VA组索引</strong>，直接将条目填入专属Set的空闲Way。</li>
-<li>若专属Set无空闲Way，执行<strong>域内替换策略</strong>（如LRU），禁止跨Set替换。</li>
-</ul>
-</li>
-</ol>
-<h3 id="2-非安全进程完整流程"><a href="#2-非安全进程完整流程" class="headerlink" title="2.  非安全进程完整流程"></a>2.  非安全进程完整流程</h3><p>非安全进程默认SID&#x3D;0，核心逻辑是<strong>并行查找+动态复用空闲S域Set</strong>，流程如下：</p>
-<ol>
-<li><strong>默认状态初始化</strong><ul>
-<li>进程启动时内核将其PCB的SID设为0，无访问S域已分配Set的权限。</li>
-</ul>
-</li>
-<li><strong>并行TLB查询</strong><ul>
-<li>进程发起TLB访问，硬件按 <code>VPN%set_size</code>计算组索引，定位对应的NS域Set，同时选中其配对的S域Set。</li>
-<li>查询分区查找表判断S域Set状态：空闲则并行查找两个Set，任意一个匹配 <code>VPN+ASID</code>即命中；已分配则屏蔽S域Set，仅查NS域Set。</li>
-</ul>
-</li>
-<li><strong>TLB Miss填充与替换</strong><ul>
-<li>Miss后MMU获取映射，优先填入NS域Set；若NS域Set无空闲，则填入配对的空闲S域Set。</li>
-<li>替换操作仅在NS域Set或空闲S域Set内执行。</li>
-</ul>
-</li>
-<li><strong>特殊场景：S域Set被分配给安全进程</strong><ul>
-<li>若普通进程正在复用某S域Set，该Set需分配给安全进程时，内核先清空Set内所有条目，再更新分区查找表将状态改为 <code>已分配</code>，硬件自动屏蔽普通进程对该Set的访问。</li>
-</ul>
-</li>
-</ol>
-<h2 id="四、-安全性分析"><a href="#四、-安全性分析" class="headerlink" title="四、 安全性分析"></a>四、 安全性分析</h2><p>本方案通过<strong>硬件强制的集合级隔离</strong>，从根源上破坏TLB时序侧信道攻击的核心前提，同时通过多重机制强化安全性。</p>
-<h3 id="1-破坏攻击核心前提"><a href="#1-破坏攻击核心前提" class="headerlink" title="1.  破坏攻击核心前提"></a>1.  破坏攻击核心前提</h3><ul>
-<li><strong>消除集合共享</strong>：安全进程的专属Set被SID强绑定，攻击者（无论属于NS域还是其他S域）无法访问受害者的Set，无法驱逐受害者的TLB条目。</li>
-<li><strong>屏蔽时序观测</strong>：跨域的TLB操作完全不可见，攻击者的访问时序仅反映自身Set状态，无法观测受害者的命中&#x2F;缺失延迟，无法推断敏感信息（如加密密钥、内核地址）。</li>
-</ul>
-<h3 id="2-典型攻击场景防御效果"><a href="#2-典型攻击场景防御效果" class="headerlink" title="2.  典型攻击场景防御效果"></a>2.  典型攻击场景防御效果</h3><table>
-<thead>
-<tr>
-<th>攻击场景</th>
-<th>防御效果</th>
-<th>核心原理</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>非安全进程攻击安全进程</td>
-<td>完全防御</td>
-<td>攻击者被限制在NS域，无法访问安全进程的专属S域Set，无任何观测路径</td>
-</tr>
-<tr>
-<td>安全进程攻击其他安全进程</td>
-<td>完全防御</td>
-<td>不同安全进程的SID绑定不同S域Set，Set无交集，无法跨进程访问</td>
-</tr>
-<tr>
-<td>定点回收Set的侧信道攻击</td>
-<td>有效防御</td>
-<td>S域Set耗尽时随机选择回收目标，攻击者无法预测，无法通过定点回收制造信息泄露</td>
-</tr>
-</tbody></table>
-<h3 id="3-附加安全保障机制"><a href="#3-附加安全保障机制" class="headerlink" title="3.  附加安全保障机制"></a>3.  附加安全保障机制</h3><ul>
-<li><strong>域内替换限制</strong>：所有TLB替换操作仅在进程所属Set范围内执行，禁止跨域替换，避免替换行为泄露跨进程信息。</li>
-<li><strong>SID原子性与唯一性</strong>：SID由内核原子分配，存入内核空间的PCB，用户进程无法篡改或伪造，确保绑定关系不被破坏。</li>
-<li><strong>硬件层面强制隔离</strong>：分区查找表的访问、Set的屏蔽&#x2F;启用均由硬件实现，不依赖软件逻辑，避免软件漏洞导致的隔离失效。</li>
-</ul>
-<h3 id="4-方案局限性"><a href="#4-方案局限性" class="headerlink" title="4.  方案局限性"></a>4.  方案局限性</h3><ul>
-<li><strong>安全进程数量受限</strong>：安全进程的并发数受限于S域的总Set数量，若系统存在大量安全进程，频繁的Set清空与重绑定会带来性能开销。</li>
-<li><strong>GPU架构适配困难</strong>：方案基于CPU组相联TLB设计，GPU的TLB层级更复杂（如共享L3 TLB），需大幅修改设计才能适配。</li>
-<li><strong>Set分配无法动态调整</strong>：每个安全进程分配的Set数量固定，无法根据进程的实际工作量动态调整，存在资源分配不合理的风险。</li>
-</ul>
+                <p>本文进行SEED_LAB中关于Set_Uid一节的实验学习：笔者将按照官方网站中的实验指导文档进行操作。</p>
+<p>Ps：本文实验环境采取SEED Ubuntu 20.04 VM</p>
+<h1 id="实验一"><a href="#实验一" class="headerlink" title="实验一"></a>实验一</h1><p>本节进行linux下环境变量操作的说明：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">env</span> <span class="token comment">#获取当前环境变量信息</span>
+<span class="token builtin class-name">export</span> <span class="token assign-left variable">YSSX</span><span class="token operator">=</span><span class="token number">123</span> <span class="token comment">#设置名为YSSX的环境变量，值为123</span>
+<span class="token builtin class-name">unset</span> YSSX <span class="token comment">#取消YSSX的环境变量</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>注意！！！export与unset为bash中的内置命令，而不是可运行的程序。因此别的shell中无法使用</p>
+<h1 id="实验二"><a href="#实验二" class="headerlink" title="实验二"></a>实验二</h1><p>本节研究父子进程间的环境变量继承情况，我们通过以下代码来进行测试</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+
+<span class="token keyword">extern</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>environ<span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">printenv</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>environ<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+     <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%s\n"</span><span class="token punctuation">,</span> environ<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+     i<span class="token operator">++</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token class-name">pid_t</span> childPid<span class="token punctuation">;</span>
+  <span class="token keyword">switch</span><span class="token punctuation">(</span>childPid <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">case</span> <span class="token number">0</span><span class="token operator">:</span>  <span class="token comment">/* child process */</span>
+      <span class="token comment">//printenv();  </span>
+      <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">default</span><span class="token operator">:</span>  <span class="token comment">/* parent process */</span>
+      <span class="token comment">//printenv();   </span>
+      <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>分别解开父子进程中的printenv注释，并将结果输出到a,b两个文件中，对其输出内容进行diff操作</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/"><img src="/2026/05/17/seed-lab-set-uid/1779021339013.png" alt="父子进程环境变量验证"></p>
+<p>由此可知，fork出的子进程将继承父进程的环境变量信息</p>
+<h1 id="实验三"><a href="#实验三" class="headerlink" title="实验三"></a>实验三</h1><p>本节探讨execve形式的进程创建与环境变量继承的关系。execve函数的范式定义为 <code>int execve(const char *pathname, char *const argv[], char *const envp[]);</code>分别为程序名，程序参数，环境变量列表。</p>
+<p>根据上述分析，我们可以给出以下形式的代码进行验证</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+
+<span class="token keyword">extern</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>environ<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"/usr/bin/env"</span><span class="token punctuation">;</span>
+  argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+
+  <span class="token function">execve</span><span class="token punctuation">(</span><span class="token string">"/usr/bin/env"</span><span class="token punctuation">,</span> argv<span class="token punctuation">,</span> environ<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+  <span class="token comment">//execve("/usr/bin/env", argv, NULL);  </span>
+  <span class="token keyword">return</span> <span class="token number">0</span> <span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>分别使用NULL列表和environ列表进行编译，可以看到，execve必须由调用者主动给出环境变量列表，否则无法继承父进程环境变量</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779021831547.png" alt="两种列表运行结果"></p>
+<h1 id="实验四"><a href="#实验四" class="headerlink" title="实验四"></a>实验四</h1><p>本节探讨system形式的进程创建与环境变量继承的关系。不同于直接执行命令的execve，system()实际执行的是”&#x2F;bin&#x2F;sh -c command”，即它会先执行&#x2F;bin&#x2F;sh，然后让shell来执行命令。、</p>
+<p>同时，system的函数实现通过execl()来执行&#x2F;bin&#x2F;sh，execl()会调用execve()，同时将环境变量传递给这个系统调用。因此该形式创建进程应当会继承环境变量，我们编译如下代码进行测试</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"whoami"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"printenv"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>发现确实继承了环境变量</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779022169692.png" alt="system验证"></p>
+<h1 id="实验五、六"><a href="#实验五、六" class="headerlink" title="实验五、六"></a>实验五、六</h1><p>本节介绍Set_Uid程序与环境变量间的关系。首先，<strong>Set_Uid权限位</strong>是Linux操作系统中的一种特殊权限操作：拥有该权限位的程序，在被任意用户运行时，都会使用该程序拥有者的系统权限进行程序中的操作。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">chown</span> root your_program <span class="token comment">#更改拥有者为root</span>
+<span class="token function">sudo</span> <span class="token function">chmod</span> <span class="token number">4755</span> your_program <span class="token comment">#更改Set_uid权限位</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>同时由于system()会保留用户的环境变量，因此在Set_uid程序中使用system是极为危险的。</p>
+<p>比如我们自定义ls程序如下，并将其编译为 <code>gcc ls.c -o ls</code></p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">//ls.c</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+	<span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"whoami"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"This is Seed's fake ls!You are foo!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>我们可以看到，在 <code>export PATH=/home/seed/Desktop/Labsetup:$PATH </code>后，ls指令已经被替换为了我们的自定义代码</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779022905707.png"></p>
+<p>此时，我们编译如下代码，并为其设置Set_uid位，查看普通用户的环境变量能否影响到该程序的运行结果</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"ls"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以发现，即使是在用户环境下的恶意代码，仍有可能通过Set_uid进行提权</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779023409654.png"></p>
+<h1 id="实验七"><a href="#实验七" class="headerlink" title="实验七"></a>实验七</h1><p>Linux中的一些环境变量通常会影响程序的运行。比如经典的LD_PRELOAD，该环境变量一旦被设置，程序链接过程中将最优先查找该变量所定义的库。由此，我们可以通过库劫持的操作实现恶意代码的执行。</p>
+<p>首先编译我们自己的sleep函数,用来替换c标准库中的sleep函数</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token keyword">void</span> <span class="token function">sleep</span> <span class="token punctuation">(</span><span class="token keyword">int</span> s<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"I wont sleep!! \n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其次将其编译成我们自己的共享库</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gcc <span class="token parameter variable">-fPIC</span> <span class="token parameter variable">-g</span> <span class="token parameter variable">-c</span> mylib.c <span class="token comment">#仅编译为mylib.o 不链接；同时设置PIC位置无关</span>
+gcc <span class="token parameter variable">-shared</span> <span class="token parameter variable">-o</span> libmylib.so.1.0.1 mylib.o <span class="token parameter variable">-lc</span> <span class="token comment">#生成共享库，，并且通过-lc链接c标准库</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>接下来进行声明 <code>export LD_PRELOAD=./libmylib.so.1.0.1</code>，然后使用以下代码进行测试 <code>sleep(1);</code>发现库劫持实现</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779026141985.png"></p>
+<p>接下来，我们分别在不同权限位下进行验证</p>
+<p>将myprog设置为Set-UIDroot程序，并以普通用户运行。正常睡眠<img src="/2026/05/17/seed-lab-set-uid/1779026272274.png"></p>
+<p>将myprog设置为Set-UIDroot程序，在root账户中设置LD_PRELOAD环境变量后运行该程序。库劫持成功</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779026493051.png"></p>
+<p>将myprog设置为Set-UIDuser1程序（即拥有者为user1，这是另一个用户账户），在user2账户(非root用户）中设置LD_PRELOAD环境变量后运行该程序。正常睡眠</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779026594214.png"></p>
+<p>综上，我们可以发现，现代操作系统在父子进程的环境变量继承中，会主动过滤类似高风险变量，从而防止恶意库代码的劫持</p>
+<h1 id="实验八"><a href="#实验八" class="headerlink" title="实验八"></a>实验八</h1><p>前文已提到，sysytem()会保留父进程的环境变量，有一定程度的风险。并且该函数实现的原理是调用一个shell来执行命令，因此还会存在字符串拼接执行的风险</p>
+<p>观察下述代码，可以看出，其核心功能是使用cat程序，完成任意文件内容的读取。但由于代码中没有写操作，理应无法借助root权限修改任何文件</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+  
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">char</span> <span class="token operator">*</span>v<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token keyword">char</span> <span class="token operator">*</span>command<span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span><span class="token punctuation">(</span>argc <span class="token operator">&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Please type a file name.\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"/bin/cat"</span><span class="token punctuation">;</span> v<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span> v<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+
+  command <span class="token operator">=</span> <span class="token function">malloc</span><span class="token punctuation">(</span><span class="token function">strlen</span><span class="token punctuation">(</span>v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token function">strlen</span><span class="token punctuation">(</span>v<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sprintf</span><span class="token punctuation">(</span>command<span class="token punctuation">,</span> <span class="token string">"%s %s"</span><span class="token punctuation">,</span> v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> v<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Use only one of the followings.</span>
+  <span class="token function">system</span><span class="token punctuation">(</span>command<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// execve(v[0], v, NULL);</span>
+
+  <span class="token keyword">return</span> <span class="token number">0</span> <span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>但是可以看到，此处一开始的子程序创建借助system完成。从system原理可知 <code>/bin/cat your_argv</code>是在shell中进行解析的。同时shell同行中可以使用;来衔接两条命令依次执行。</p>
+<p>因此我们可以使用 <code>./catall  &quot;123;whoami&quot;</code>的操作来进行任意命令的提权，如下图所示，成功执行whoami，并且当前权限为root</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779027566106.png"></p>
+<p>将system换为execve后，没有shell的中转，无法进行拼接字符串的解析，无法实现上述攻击</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779027689777.png"></p>
+<h1 id="实验九"><a href="#实验九" class="headerlink" title="实验九"></a>实验九</h1><p>为了遵循最小权限原则，Set-UID程序通常会在不再需要权限时永久放弃其root权限。但在放弃权限后，一些已分配已申请的资源依旧存在，这些特权功能的遗留导致了权限泄露漏洞</p>
+<p>分析以下代码,在以root权限申请&#x2F;etc&#x2F;zzz的文件描述符后，直接降权，fd的遗留导致了权限泄露。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+
+<span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+  <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+  <span class="token keyword">char</span> <span class="token operator">*</span>v<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  <span class="token comment">/* Assume that /etc/zzz is an important system file,
+   * and it is owned by root with permission 0644.
+   * Before running this program, you should create
+   * the file /etc/zzz first. */</span>
+  fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/etc/zzz"</span><span class="token punctuation">,</span> O_RDWR <span class="token operator">|</span> O_APPEND<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+     <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Cannot open /etc/zzz\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+     <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token comment">// Print out the file descriptor value</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"fd is %d\n"</span><span class="token punctuation">,</span> fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Permanently disable the privilege by making the</span>
+  <span class="token comment">// effective uid the same as the real uid</span>
+  <span class="token function">setuid</span><span class="token punctuation">(</span><span class="token function">getuid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>      
+
+  <span class="token comment">// Execute /bin/sh</span>
+  v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"/bin/sh"</span><span class="token punctuation">;</span> v<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token function">execve</span><span class="token punctuation">(</span>v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> v<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在 <code>/bin/sh</code>时使用的是user权限，理应无法对&#x2F;etc&#x2F;zzz进行修改.</p>
+<p>但是由于上述所说的权限泄露问题，我们进入新的shell时，依然保留了&#x2F;etc&#x2F;zzz的文件描述符，因此我们可以直接对该文件符进行读写操作，从而修改指定文件的内容。</p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779028173311.png"></p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779028313668.png"></p>
+<p>成功以普通用户身份修改系统关键文件</p>
 
                 
             </div>
@@ -636,7 +715,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://Yssx-g.github.io/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/">http://Yssx-g.github.io/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/</a>
+                    <a href="http://Yssx-g.github.io/2026/05/17/seed-lab-set-uid/">http://Yssx-g.github.io/2026/05/17/seed-lab-set-uid/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -674,12 +753,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E4%BE%A7%E4%BF%A1%E9%81%93/">
-                                    <span class="chip bg-color">侧信道</span>
-                                </a>
-                            
-                                <a href="/tags/TLB/">
-                                    <span class="chip bg-color">TLB</span>
+                                <a href="/tags/SEED-LAB/">
+                                    <span class="chip bg-color">SEED_LAB</span>
                                 </a>
                             
                         </div>
@@ -986,9 +1061,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2026/05/17/seed-lab-set-uid/">
                     <div class="card-image">
@@ -1006,9 +1082,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-17
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-17
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1021,6 +1097,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1039,13 +1116,13 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2026/01/30/slam-gong-ji-yuan-li-ji-tiao-jian-fen-xi/">
+                <a href="/2026/01/31/tlb-gong-ji-fang-hu-ce-lue-fen-xi/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="SLAM攻击原理及条件分析">
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="TLB攻击防护策略分析">
                         
-                        <span class="card-title">SLAM攻击原理及条件分析</span>
+                        <span class="card-title">TLB攻击防护策略分析</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -1056,7 +1133,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-30
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-01-31
                             </span>
                         <span class="publish-author">
                             
