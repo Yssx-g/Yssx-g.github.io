@@ -495,15 +495,15 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>本文进行SEED_LAB中关于Set_Uid一节的实验学习：笔者将按照官方网站中的实验指导文档进行操作。</p>
+                <h1 id="Set-UID程序实验"><a href="#Set-UID程序实验" class="headerlink" title="Set_UID程序实验"></a>Set_UID程序实验</h1><p>本文进行SEED_LAB中关于Set_Uid一节的实验学习：笔者将按照官方网站中的实验指导文档进行操作。</p>
 <p>Ps：本文实验环境采取SEED Ubuntu 20.04 VM</p>
-<h1 id="实验一"><a href="#实验一" class="headerlink" title="实验一"></a>实验一</h1><p>本节进行linux下环境变量操作的说明：</p>
+<h2 id="实验一"><a href="#实验一" class="headerlink" title="实验一"></a>实验一</h2><p>本节进行linux下环境变量操作的说明：</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">env</span> <span class="token comment">#获取当前环境变量信息</span>
 <span class="token builtin class-name">export</span> <span class="token assign-left variable">YSSX</span><span class="token operator">=</span><span class="token number">123</span> <span class="token comment">#设置名为YSSX的环境变量，值为123</span>
 <span class="token builtin class-name">unset</span> YSSX <span class="token comment">#取消YSSX的环境变量</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <p>注意！！！export与unset为bash中的内置命令，而不是可运行的程序。因此别的shell中无法使用</p>
-<h1 id="实验二"><a href="#实验二" class="headerlink" title="实验二"></a>实验二</h1><p>本节研究父子进程间的环境变量继承情况，我们通过以下代码来进行测试</p>
+<h2 id="实验二"><a href="#实验二" class="headerlink" title="实验二"></a>实验二</h2><p>本节研究父子进程间的环境变量继承情况，我们通过以下代码来进行测试</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
@@ -534,9 +534,9 @@
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>分别解开父子进程中的printenv注释，并将结果输出到a,b两个文件中，对其输出内容进行diff操作</p>
-<p><img src="/2026/05/17/seed-lab-set-uid/"><img src="/2026/05/17/seed-lab-set-uid/1779021339013.png" alt="父子进程环境变量验证"></p>
+<p><img src="/2026/05/17/seed-lab-set-uid/1779021339013.png" alt="父子进程环境变量验证"></p>
 <p>由此可知，fork出的子进程将继承父进程的环境变量信息</p>
-<h1 id="实验三"><a href="#实验三" class="headerlink" title="实验三"></a>实验三</h1><p>本节探讨execve形式的进程创建与环境变量继承的关系。execve函数的范式定义为 <code>int execve(const char *pathname, char *const argv[], char *const envp[]);</code>分别为程序名，程序参数，环境变量列表。</p>
+<h2 id="实验三"><a href="#实验三" class="headerlink" title="实验三"></a>实验三</h2><p>本节探讨execve形式的进程创建与环境变量继承的关系。execve函数的范式定义为 <code>int execve(const char *pathname, char *const argv[], char *const envp[]);</code>分别为程序名，程序参数，环境变量列表。</p>
 <p>根据上述分析，我们可以给出以下形式的代码进行验证</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
 
@@ -556,7 +556,7 @@
 
 <p>分别使用NULL列表和environ列表进行编译，可以看到，execve必须由调用者主动给出环境变量列表，否则无法继承父进程环境变量</p>
 <p><img src="/2026/05/17/seed-lab-set-uid/1779021831547.png" alt="两种列表运行结果"></p>
-<h1 id="实验四"><a href="#实验四" class="headerlink" title="实验四"></a>实验四</h1><p>本节探讨system形式的进程创建与环境变量继承的关系。不同于直接执行命令的execve，system()实际执行的是”&#x2F;bin&#x2F;sh -c command”，即它会先执行&#x2F;bin&#x2F;sh，然后让shell来执行命令。、</p>
+<h2 id="实验四"><a href="#实验四" class="headerlink" title="实验四"></a>实验四</h2><p>本节探讨system形式的进程创建与环境变量继承的关系。不同于直接执行命令的execve，system()实际执行的是”&#x2F;bin&#x2F;sh -c command”，即它会先执行&#x2F;bin&#x2F;sh，然后让shell来执行命令。、</p>
 <p>同时，system的函数实现通过execl()来执行&#x2F;bin&#x2F;sh，execl()会调用execve()，同时将环境变量传递给这个系统调用。因此该形式创建进程应当会继承环境变量，我们编译如下代码进行测试</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
@@ -569,7 +569,7 @@
 
 <p>发现确实继承了环境变量</p>
 <p><img src="/2026/05/17/seed-lab-set-uid/1779022169692.png" alt="system验证"></p>
-<h1 id="实验五、六"><a href="#实验五、六" class="headerlink" title="实验五、六"></a>实验五、六</h1><p>本节介绍Set_Uid程序与环境变量间的关系。首先，<strong>Set_Uid权限位</strong>是Linux操作系统中的一种特殊权限操作：拥有该权限位的程序，在被任意用户运行时，都会使用该程序拥有者的系统权限进行程序中的操作。</p>
+<h2 id="实验五、六"><a href="#实验五、六" class="headerlink" title="实验五、六"></a>实验五、六</h2><p>本节介绍Set_Uid程序与环境变量间的关系。首先，<strong>Set_Uid权限位</strong>是Linux操作系统中的一种特殊权限操作：拥有该权限位的程序，在被任意用户运行时，都会使用该程序拥有者的系统权限进行程序中的操作。</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">chown</span> root your_program <span class="token comment">#更改拥有者为root</span>
 <span class="token function">sudo</span> <span class="token function">chmod</span> <span class="token number">4755</span> your_program <span class="token comment">#更改Set_uid权限位</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
@@ -599,7 +599,7 @@
 
 <p>可以发现，即使是在用户环境下的恶意代码，仍有可能通过Set_uid进行提权</p>
 <p><img src="/2026/05/17/seed-lab-set-uid/1779023409654.png"></p>
-<h1 id="实验七"><a href="#实验七" class="headerlink" title="实验七"></a>实验七</h1><p>Linux中的一些环境变量通常会影响程序的运行。比如经典的LD_PRELOAD，该环境变量一旦被设置，程序链接过程中将最优先查找该变量所定义的库。由此，我们可以通过库劫持的操作实现恶意代码的执行。</p>
+<h2 id="实验七"><a href="#实验七" class="headerlink" title="实验七"></a>实验七</h2><p>Linux中的一些环境变量通常会影响程序的运行。比如经典的LD_PRELOAD，该环境变量一旦被设置，程序链接过程中将最优先查找该变量所定义的库。由此，我们可以通过库劫持的操作实现恶意代码的执行。</p>
 <p>首先编译我们自己的sleep函数,用来替换c标准库中的sleep函数</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
 <span class="token keyword">void</span> <span class="token function">sleep</span> <span class="token punctuation">(</span><span class="token keyword">int</span> s<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
@@ -619,7 +619,7 @@ gcc <span class="token parameter variable">-shared</span> <span class="token par
 <p>将myprog设置为Set-UIDuser1程序（即拥有者为user1，这是另一个用户账户），在user2账户(非root用户）中设置LD_PRELOAD环境变量后运行该程序。正常睡眠</p>
 <p><img src="/2026/05/17/seed-lab-set-uid/1779026594214.png"></p>
 <p>综上，我们可以发现，现代操作系统在父子进程的环境变量继承中，会主动过滤类似高风险变量，从而防止恶意库代码的劫持</p>
-<h1 id="实验八"><a href="#实验八" class="headerlink" title="实验八"></a>实验八</h1><p>前文已提到，sysytem()会保留父进程的环境变量，有一定程度的风险。并且该函数实现的原理是调用一个shell来执行命令，因此还会存在字符串拼接执行的风险</p>
+<h2 id="实验八"><a href="#实验八" class="headerlink" title="实验八"></a>实验八</h2><p>前文已提到，sysytem()会保留父进程的环境变量，有一定程度的风险。并且该函数实现的原理是调用一个shell来执行命令，因此还会存在字符串拼接执行的风险</p>
 <p>观察下述代码，可以看出，其核心功能是使用cat程序，完成任意文件内容的读取。但由于代码中没有写操作，理应无法借助root权限修改任何文件</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
   
@@ -650,7 +650,7 @@ gcc <span class="token parameter variable">-shared</span> <span class="token par
 <p><img src="/2026/05/17/seed-lab-set-uid/1779027566106.png"></p>
 <p>将system换为execve后，没有shell的中转，无法进行拼接字符串的解析，无法实现上述攻击</p>
 <p><img src="/2026/05/17/seed-lab-set-uid/1779027689777.png"></p>
-<h1 id="实验九"><a href="#实验九" class="headerlink" title="实验九"></a>实验九</h1><p>为了遵循最小权限原则，Set-UID程序通常会在不再需要权限时永久放弃其root权限。但在放弃权限后，一些已分配已申请的资源依旧存在，这些特权功能的遗留导致了权限泄露漏洞</p>
+<h2 id="实验九"><a href="#实验九" class="headerlink" title="实验九"></a>实验九</h2><p>为了遵循最小权限原则，Set-UID程序通常会在不再需要权限时永久放弃其root权限。但在放弃权限后，一些已分配已申请的资源依旧存在，这些特权功能的遗留导致了权限泄露漏洞</p>
 <p>分析以下代码,在以root权限申请&#x2F;etc&#x2F;zzz的文件描述符后，直接降权，fd的遗留导致了权限泄露。</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
@@ -677,7 +677,7 @@ gcc <span class="token parameter variable">-shared</span> <span class="token par
 
   <span class="token comment">// Permanently disable the privilege by making the</span>
   <span class="token comment">// effective uid the same as the real uid</span>
-  <span class="token function">setuid</span><span class="token punctuation">(</span><span class="token function">getuid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>      
+  <span class="token function">setuid</span><span class="token punctuation">(</span><span class="token function">getuid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    
 
   <span class="token comment">// Execute /bin/sh</span>
   v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"/bin/sh"</span><span class="token punctuation">;</span> v<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
@@ -1061,30 +1061,29 @@ gcc <span class="token parameter variable">-shared</span> <span class="token par
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2026/05/17/seed-lab-set-uid/">
+                <a href="/2026/05/19/seed-lab-buffer-overflow/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="SEED_LAB-Set_uid">
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="SEED_LAB-BUFFER_OVERFLOW">
                         
-                        <span class="card-title">SEED_LAB-Set_uid</span>
+                        <span class="card-title">SEED_LAB-BUFFER_OVERFLOW</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/Labs_20.04/Software/Environment_Variable_and_SetUID/）
+                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Buffer_Overflow_Server/）
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-17
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-19
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1097,7 +1096,6 @@ gcc <span class="token parameter variable">-shared</span> <span class="token par
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
