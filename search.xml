@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Windows下通过FS定位模块基址的原理及流程</title>
+      <link href="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/"/>
+      <url>/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/</url>
+      
+        <content type="html"><![CDATA[<p>本文将介绍一种通过fs段选择子定位模块基址的方法。在windows系统下，存在着名为TEB(线程环境块)的结构体，包含着当前线程的大量信息，自然也有着线程所属进程的信息，即指向PEB(线程环境块)的指针。</p><p>对模块的遍历是从PEB结构开始的，因此我们需要获取PEB结构指针。PEB的结构指针存储在TEB中。<code>TEB结构指针存储在fs寄存器中</code>，于是我们便可以通过fs寄存器来推出对应模块的基址</p><h2 id="理论验证"><a href="#理论验证" class="headerlink" title="理论验证"></a>理论验证</h2><p>首先我们可以通过<a href="https://www.vergiliusproject.com/kernels">VP</a>进行内核结构体TEB的学习。以此来明确整个查询流程的原理</p><p>在VP中搜索_TEB得到结构体如下，可以看到PEB对应的结构体在0x30偏移处，也就意味着我们可以通过fs:[0x30]来访问真实的PEB结构体</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781070885078.png" alt="TEB部分成员"></p><p>tips：由于NtTib的0x18偏移处为self指针,同时NtTib位于TEB首部，因此我们可以使用fs:[0x18]定位TEB基址；同时TIB结构体首成员指向SEH 链（结构化异常处理链表），因此我们经常说fs指向SEH</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071458042.png" alt="Tib结构"></p><p>接下来我们进入PEB结构体中，关注框出的0xc处偏移成员，查看其类型具体定义</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071604265.png" alt="PEB结构"></p><p>可以看到标出的三个成员都是ModuleList，不同之处在于其中模块的排序方式，由于我们想定位kernel32.dll模块，于是选择按照初始化顺序进行查找(kernel一般在第2位初始化)</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071894772.png" alt="三种模块列表"></p><p>继续查看_LIST_ENTRY结构，可以发现此处是双向链表，那么此处初始的两个节点是如何连接的呢，我们有类似结构图演示</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781072379164.png"></p><p>可以看到，其实此处形成了闭环的链表，之前的PEB_LDR_DATA只是一个入口，真正的信息存储的结构另有其人，那么我们也同样的走入该结构体内部进行探索</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781072693455.png" alt="真实模块链表图"></p><p>同样的，可以看到前三个模块列表的双向链表结构体。同时我们还可以在0x18处查看到模块加载的基址，0x1c处看到代码块的入口点。如果编程查询指定模块，也可以通过与0x24处的DllName进行比照</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781073024844.png" alt="1781073024844"></p><p>注意，此处_LIST_ENTRY结构体的size为0x8，并且我们需要通过BLINK来向后查询，此处一定要区分flink和blink的地址</p><h2 id="x86实操"><a href="#x86实操" class="headerlink" title="x86实操"></a>x86实操</h2><p>有了以上理论知识的铺垫，我们在winXP系统上进行一次TEP查询kernel32基址的实操</p><p>首先在数据窗口中跳转到fs对应的地址，并在其中查询到PEB结构所在的位置，准备跳转</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085452280.png" alt="fs"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085638272.png" alt="TEB"></p><p>在其中找到对应偏移处，跳转查看PEB_LDR_DATA结构，见到了我们之前所说的三个表，这里我们使用InitOrder的flink跳转</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085761638.png" alt="PEB"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085888372.png" alt="PEB_LDR_DATA"></p><p>看到进入了ntdll.dll结构体部分，继续使用flink向前查询，得到了kernel32基址</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781086147346.png" alt="1781086147346"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781086207038.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 软件安全 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 模块定位 </tag>
+            
+            <tag> TEB </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>SEEDLAB_SPECTRE</title>
       <link href="/2026/06/02/seedlab-spectre/"/>
       <url>/2026/06/02/seedlab-spectre/</url>
@@ -316,9 +343,9 @@
       
         <tags>
             
-            <tag> Spectre </tag>
-            
             <tag> 侧信道 </tag>
+            
+            <tag> Spectre </tag>
             
         </tags>
       
@@ -370,9 +397,9 @@
       
         <tags>
             
-            <tag> Spectre </tag>
-            
             <tag> 侧信道 </tag>
+            
+            <tag> Spectre </tag>
             
         </tags>
       
