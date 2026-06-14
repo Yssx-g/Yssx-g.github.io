@@ -4,11 +4,55 @@
   
     
     <entry>
+      <title>堆攻击入门</title>
+      <link href="/2026/06/14/dui-gong-ji-ru-men/"/>
+      <url>/2026/06/14/dui-gong-ji-ru-men/</url>
+      
+        <content type="html"><![CDATA[<p>本文将介绍一些简单基础的入门堆攻击</p><h2 id="DWORD-SHOOT"><a href="#DWORD-SHOOT" class="headerlink" title="DWORD SHOOT"></a>DWORD SHOOT</h2><p>DWORD SHOOT攻击利用堆溢出，通过空闲态堆块中的的双向链表指针，完成任意地址读写的操作</p><p>其攻击原理如下，一个双向链表的中间节点摘除一般如下，而flink与blink分别位于堆块指针的0x0和0x8偏移处</p><pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">remove</span> <span class="token punctuation">(</span>ListNode <span class="token operator">*</span> node<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>node <span class="token operator">-></span> blink<span class="token operator">-></span> flink <span class="token operator">=</span> node<span class="token operator">-></span> flink<span class="token punctuation">;</span>node <span class="token operator">-></span> flink <span class="token operator">-></span> blink <span class="token operator">=</span> node<span class="token operator">-></span> blink<span class="token punctuation">;</span><span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>此时若我们将blink换为目标地址，flink换为指定数据，那么 <code>node -&gt; blink-&gt; flink = node-&gt; flink;</code>的效果就是向blink指向的地址的0x0偏移处写入数据flink</p><p>同理第二句 <code>node -&gt; flink-&gt; blink = node-&gt; blink;</code>的效果是向flink指向的地址的0x8偏移处写入数据blink；</p><p>在实际操作中，我们则有以下的运用方式，h1分配完以后，通过堆溢出方式将指定地址及内容覆盖到h2的数据区前8字节,实现对shellcode开始处的跳转工作</p><pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;windows.h></span></span><span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>HLOCAL h1 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> h2 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>HANDLE hp<span class="token punctuation">;</span>hp <span class="token operator">=</span> <span class="token function">HeapCreate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000</span><span class="token punctuation">,</span><span class="token number">0x10000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>h1 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token function">memcpy</span><span class="token punctuation">(</span>h1<span class="token punctuation">,</span>shellcode<span class="token punctuation">,</span><span class="token number">0x200</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//overflow,0x200=512</span>h2 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> 软件安全 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 堆溢出 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>堆结构</title>
+      <link href="/2026/06/14/dui-jie-gou-jian-jie/"/>
+      <url>/2026/06/14/dui-jie-gou-jian-jie/</url>
+      
+        <content type="html"><![CDATA[<h1 id="堆结构简介"><a href="#堆结构简介" class="headerlink" title="堆结构简介"></a>堆结构简介</h1><p>首先我们需要认识两个重要的空闲堆块管理结构：空表(freelist)和快表(LookAside)，在下图中可以看到，空表项位堆结构固定偏移0x178处，而快表指针则位于固定偏移0x580处</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781412215133.png" alt="堆结构"></p><p>有一点需要注意，空表只会出现在可扩展的堆中，比如</p><pre class="line-numbers language-c" data-language="c"><code class="language-c">hp <span class="token operator">=</span> <span class="token function">HeapCreate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000</span><span class="token punctuation">,</span><span class="token number">0x10000</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//固定了初始大小0x1000和最大堆大小0x10000,堆无法扩展，空表始终为null</span>hp <span class="token operator">=</span> <span class="token function">HeapCreate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000</span><span class="token punctuation">,</span><span class="token number">0x10000</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//未设置初始大小和最大大小，堆可动态扩展，存在空表项</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h2 id="空表"><a href="#空表" class="headerlink" title="空表"></a>空表</h2><p>空表也就是Freelists，在上图中我们可以看到，空表的表项共有128，又 <code>1024=128*8</code>。由此可以引出空表存储空闲堆块的方式：特殊的第0项用于存储&gt;&#x3D;1024byte的空闲堆块，而后续表项从free[1]开始依次按8字节递增所存储的堆块大小。</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781412963617.png"></p><p>List_entry是一个双向链表结构，因此我们的Freelist的实际存储方式如图（空闲时Flink与Blink均指向自身）</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781412836978.png" alt="空表存储方式"></p><p>此处我们可以通过动态调试的数据进行验证(PS:此时堆段基址为0x360000)</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781413215466.png"></p><h2 id="快速单向链表"><a href="#快速单向链表" class="headerlink" title="快速单向链表"></a>快速单向链表</h2><p>快表即Lookaside，同样通过堆结构体分析，我们可以得知定位快表地址的方式：FrontEndHeap指针位于0x580偏移处，指向快表</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781413373777.png"></p><p>快表项远比空表项大，下图是快表项具体结构，每个表项占0x30字节，但我们目前只需要关注首部的堆块地址即可</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781413568290.png" alt="快表结构"></p><p>进入这个Union中，看一下地址的具体存储方式：位于0x0处，并且以单链表形式存储地址</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781413731914.png"></p><p>同理，快表也有128项，其存储的堆块大小排序方式与空表一致，但第0项未使用，如下图所示</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781413906000.png" alt="快表存储堆块"></p><p>接下来跳转到动态调试中的快表处进行验证，可以看到实际使用中即使是1字节的小堆块，也不会用到快表的0、1项，具体原因后文叙述</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781413987385.png"></p><h2 id="堆块结构"><a href="#堆块结构" class="headerlink" title="堆块结构"></a>堆块结构</h2><p>先前介绍了两个堆块的存储结构，接下来我们对堆块进行介绍</p><p>关于堆块分配，释放，合并的知识我们不详述，只需要知道，分配是从初始化的尾块分割，释放是将堆块放入上述两结构中，合并是将相邻的空闲堆块合成更大的堆块就可以</p><p>PS:在进行堆块操作中，始终以8byte为操作单位，并且若用户未请求，unused字节不会被初始化。</p><p>堆块有着空闲态和占用态两种情况，分别对应着不同的数据结构：</p><h3 id="占用态"><a href="#占用态" class="headerlink" title="占用态"></a>占用态</h3><p>占用态堆块是不在快表和空表上的,其指针直接由用户进程保留；</p><p>堆块均有堆首，占8字节，用户申请的堆块则只对应堆块的数据区，即使只申请1byte堆空间，堆首的selfsize也是0x2(8byte堆首+8byte对齐单位)</p><p>关于堆首数据的详解，如下图所示</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781414455973.png" alt="占用态堆首"></p><h3 id="空闲态"><a href="#空闲态" class="headerlink" title="空闲态"></a>空闲态</h3><p>空闲态堆块则是在占用态堆首的前提下，借用数据区前8byte，存储了一个_LIST_ENTRY结构，这也是空闲堆块索引的关键所在</p><p><img src="/2026/06/14/dui-jie-gou-jian-jie/1781415443932.png" alt="空闲态堆块数据结构"></p><p>注意，快表是不会被合并的，就是因为快表中的堆块结构，其堆首中的Flag均是0x1(busy)状态</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 软件安全 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Windows下通过FS定位模块基址的原理及流程</title>
       <link href="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/"/>
       <url>/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/</url>
       
-        <content type="html"><![CDATA[<p>本文将介绍一种通过fs段选择子定位模块基址的方法。在windows系统下，存在着名为TEB(线程环境块)的结构体，包含着当前线程的大量信息，自然也有着线程所属进程的信息，即指向PEB(线程环境块)的指针。</p><p>对模块的遍历是从PEB结构开始的，因此我们需要获取PEB结构指针。PEB的结构指针存储在TEB中。<code>TEB结构指针存储在fs寄存器中</code>，于是我们便可以通过fs寄存器来推出对应模块的基址</p><h2 id="理论验证"><a href="#理论验证" class="headerlink" title="理论验证"></a>理论验证</h2><p>首先我们可以通过<a href="https://www.vergiliusproject.com/kernels">VP</a>进行内核结构体TEB的学习。以此来明确整个查询流程的原理</p><p>在VP中搜索_TEB得到结构体如下，可以看到PEB对应的结构体在0x30偏移处，也就意味着我们可以通过fs:[0x30]来访问真实的PEB结构体</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781070885078.png" alt="TEB部分成员"></p><p>tips：由于NtTib的0x18偏移处为self指针,同时NtTib位于TEB首部，因此我们可以使用fs:[0x18]定位TEB基址；同时TIB结构体首成员指向SEH 链（结构化异常处理链表），因此我们经常说fs指向SEH</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071458042.png" alt="Tib结构"></p><p>接下来我们进入PEB结构体中，关注框出的0xc处偏移成员，查看其类型具体定义</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071604265.png" alt="PEB结构"></p><p>可以看到标出的三个成员都是ModuleList，不同之处在于其中模块的排序方式，由于我们想定位kernel32.dll模块，于是选择按照初始化顺序进行查找(kernel一般在第2位初始化)</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071894772.png" alt="三种模块列表"></p><p>继续查看_LIST_ENTRY结构，可以发现此处是双向链表，那么此处初始的两个节点是如何连接的呢，我们有类似结构图演示</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781072379164.png"></p><p>可以看到，其实此处形成了闭环的链表，之前的PEB_LDR_DATA只是一个入口，真正的信息存储的结构另有其人，那么我们也同样的走入该结构体内部进行探索</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781072693455.png" alt="真实模块链表图"></p><p>同样的，可以看到前三个模块列表的双向链表结构体。同时我们还可以在0x18处查看到模块加载的基址，0x1c处看到代码块的入口点。如果编程查询指定模块，也可以通过与0x24处的DllName进行比照</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781073024844.png" alt="1781073024844"></p><p>注意，此处_LIST_ENTRY结构体的size为0x8，并且我们需要通过BLINK来向后查询，此处一定要区分flink和blink的地址</p><h2 id="x86实操"><a href="#x86实操" class="headerlink" title="x86实操"></a>x86实操</h2><p>有了以上理论知识的铺垫，我们在winXP系统上进行一次TEP查询kernel32基址的实操</p><p>首先在数据窗口中跳转到fs对应的地址，并在其中查询到PEB结构所在的位置，准备跳转</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085452280.png" alt="fs"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085638272.png" alt="TEB"></p><p>在其中找到对应偏移处，跳转查看PEB_LDR_DATA结构，见到了我们之前所说的三个表，这里我们使用InitOrder的flink跳转</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085761638.png" alt="PEB"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085888372.png" alt="PEB_LDR_DATA"></p><p>看到进入了ntdll.dll结构体部分，继续使用flink向前查询，得到了kernel32基址</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781086147346.png" alt="1781086147346"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781086207038.png"></p>]]></content>
+        <content type="html"><![CDATA[<p>本文将介绍一种通过fs段选择子定位模块基址的方法。在windows系统下，存在着名为TEB(线程环境块)的结构体，包含着当前线程的大量信息，自然也有着线程所属进程的信息，即指向PEB(线程环境块)的指针。</p><p>对模块的遍历是从PEB结构开始的，因此我们需要获取PEB结构指针。PEB的结构指针存储在TEB中。<code>TEB结构指针存储在fs寄存器中</code>，于是我们便可以通过fs寄存器来推出对应模块的基址</p><h2 id="理论验证"><a href="#理论验证" class="headerlink" title="理论验证"></a>理论验证</h2><p>首先我们可以通过<a href="https://www.vergiliusproject.com/kernels">VP</a>进行内核结构体TEB的学习。以此来明确整个查询流程的原理</p><p>在VP中搜索_TEB得到结构体如下，可以看到PEB对应的结构体在0x30偏移处，也就意味着我们可以通过fs:[0x30]来访问真实的PEB结构体</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781070885078.png" alt="TEB部分成员"></p><p>tips：由于NtTib的0x18偏移处为self指针,同时NtTib位于TEB首部，因此我们可以使用fs:[0x18]定位TEB基址；同时TIB结构体首成员指向SEH 链（结构化异常处理链表），因此我们经常说fs指向SEH</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071458042.png" alt="Tib结构"></p><p>接下来我们进入PEB结构体中，关注框出的0xc处偏移成员，查看其类型具体定义</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071604265.png" alt="PEB结构"></p><p>可以看到标出的三个成员都是ModuleList，不同之处在于其中模块的排序方式，由于我们想定位kernel32.dll模块，于是选择按照初始化顺序进行查找(kernel一般在第2位初始化)</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781071894772.png" alt="三种模块列表"></p><p>继续查看_LIST_ENTRY结构，可以发现此处是双向链表，那么此处初始的两个节点是如何连接的呢，我们有类似结构图演示</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781072379164.png"></p><p>可以看到，其实此处形成了闭环的链表，之前的PEB_LDR_DATA只是一个入口，真正的信息存储的结构另有其人，那么我们也同样的走入该结构体内部进行探索</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781072693455.png" alt="真实模块链表图"></p><p>同样的，可以看到前三个模块列表的双向链表结构体。同时我们还可以在0x18处查看到模块加载的基址，0x1c处看到代码块的入口点。如果编程查询指定模块，也可以通过与0x24处的DllName进行比照</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781073024844.png" alt="1781073024844"></p><p>注意，此处_LIST_ENTRY结构体的size为0x8，并且我们需要通过BLINK来向后查询，此处一定要区分flink和blink的地址</p><h2 id="x86实操"><a href="#x86实操" class="headerlink" title="x86实操"></a>x86实操</h2><p>有了以上理论知识的铺垫，我们在winXP系统上进行一次TEP查询kernel32基址的实操</p><p>首先在数据窗口中跳转到fs对应的地址，并在其中查询到PEB结构所在的位置，准备跳转</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085452280.png" alt="fs"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085638272.png" alt="TEB"></p><p>在其中找到对应偏移处，跳转查看PEB_LDR_DATA结构，见到了我们之前所说的三个表，这里我们使用InitOrder的flink跳转</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085761638.png" alt="PEB"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781085888372.png" alt="PEB_LDR_DATA"></p><p>看到进入了ntdll.dll结构体部分，继续使用flink向前查询，得到了kernel32基址</p><p><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781086147346.png"><img src="/2026/06/10/windows-xia-tong-guo-fs-ding-wei-mo-kuai-ji-zhi-de-yuan-li-ji-liu-cheng/1781086207038.png"></p>]]></content>
       
       
       <categories>
@@ -343,9 +387,9 @@
       
         <tags>
             
-            <tag> Spectre </tag>
-            
             <tag> 侧信道 </tag>
+            
+            <tag> Spectre </tag>
             
         </tags>
       
@@ -397,9 +441,9 @@
       
         <tags>
             
-            <tag> Spectre </tag>
-            
             <tag> 侧信道 </tag>
+            
+            <tag> Spectre </tag>
             
         </tags>
       
